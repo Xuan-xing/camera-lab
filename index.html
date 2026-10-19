@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卡麥拉的攝影實驗室 | 互動式日系攝影教學</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232C4A3E'/%3E%3Cpath d='M12 24 C14 11 50 11 52 24 Z' fill='%234A7060'/%3E%3Crect x='13' y='22' width='38' height='30' rx='8' fill='%23F9F6F0' stroke='%231E332B' stroke-width='2.5'/%3E%3Crect x='17' y='26' width='30' height='22' rx='5' fill='%2323382F'/%3E%3Ccircle cx='25' cy='35' r='3.5' fill='%23F9F6F0'/%3E%3Ccircle cx='26' cy='34' r='1.2' fill='%23D97A54'/%3E%3Ccircle cx='39' cy='35' r='3.5' fill='%23F9F6F0'/%3E%3Ccircle cx='40' cy='34' r='1.2' fill='%23D97A54'/%3E%3Cpath d='M28 42 Q32 45 36 42' stroke='%23D97A54' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='19' cy='40' r='1.5' fill='%23D97A54' opacity='0.8'/%3E%3Ccircle cx='45' cy='40' r='1.5' fill='%23D97A54' opacity='0.8'/%3E%3C/svg%3E">
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入日系感字體 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#F9F6F0',
+            oat: '#EFECE6',
+            forest: '#2C4A3E',
+            sage: '#4A7060',
+            amber: '#D97A54',
+            charcoal: '#333835',
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'sans-serif'],
+            serif: ['"Noto Serif TC"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-cream: #F9F6F0;
+      --bg-oat: #EFECE6;
+      --c-forest: #2C4A3E;
+      --c-sage: #4A7060;
+      --c-amber: #D97A54;
+      --c-charcoal: #333835;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--c-charcoal);
+      overflow-x: hidden;
+    }
+
+    /* 自訂滑桿樣式 (淺色卡片用) */
+    input[type=range].light-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #EFECE6;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      border: 1px solid #d5d0c5;
+    }
+    input[type=range].light-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2C4A3E;
+      cursor: pointer;
+      border: 3px solid #F9F6F0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    input[type=range].light-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #D97A54;
+    }
+
+    /* 觀景窗 HUD 深色抽屜專用滑桿 */
+    input[type=range].hud-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.15);
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    input[type=range].hud-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #D97A54;
+      cursor: pointer;
+      border: 3px solid #F9F6F0;
+      box-shadow: 0 0 10px rgba(217, 122, 84, 0.6);
+      transition: transform 0.15s ease;
+    }
+    input[type=range].hud-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+    }
+
+    /* 手震模糊動畫 */
+    @keyframes camera-shake {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(-4px, 2px) rotate(-0.8deg); }
+      40% { transform: translate(4px, -3px) rotate(0.8deg); }
+      60% { transform: translate(-3px, -2px) rotate(-0.5deg); }
+      80% { transform: translate(3px, 3px) rotate(0.5deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shake-active {
+      animation: camera-shake 0.35s infinite;
+    }
+
+    /* 小機器人警告發抖動畫 */
+    @keyframes bot-panic {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px) rotate(-2deg); }
+      75% { transform: translateX(4px) rotate(2deg); }
+    }
+    .bot-panic-anim {
+      animation: bot-panic 0.25s infinite;
+    }
+
+    /* 濾鏡旋轉安裝微動畫 */
+    @keyframes filter-mount {
+      0% { transform: rotate(-25deg) scale(0.9); opacity: 0.5; }
+      100% { transform: rotate(0deg) scale(1); opacity: 1; }
+    }
+    .filter-mounted {
+      animation: filter-mount 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 閃光燈閃爍動畫 */
+    @keyframes flash-pop {
+      0% { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 0; transform: scale(0.5); }
+    }
+    .flash-active {
+      animation: flash-pop 0.6s ease-out forwards;
+    }
+
+    /* 構圖平滑過渡 */
+    .comp-el {
+      transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* 散景光斑呼吸感 */
+    @keyframes bokeh-float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-6px) scale(1.05); }
+    }
+    .bokeh-circle {
+      animation: bokeh-float 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-amber selection:text-white">
+
+  <!-- ================= 頂部導覽列 (Sticky Header) ================= -->
+  <header class="sticky top-0 z-50 bg-cream/90 backdrop-blur-md border-b border-sage/20 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <!-- 左側 Logo 與小機器人縮圖 -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-forest flex items-center justify-center shadow-inner group-hover:bg-amber transition-colors">
+          <svg class="w-7 h-7" viewBox="0 0 64 64" fill="none">
+            <path d="M12 20 C12 10, 52 10, 54 20 Z" fill="#4A7060"/>
+            <rect x="14" y="18" width="36" height="28" rx="6" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="3"/>
+            <circle cx="25" cy="32" r="3.5" fill="#2C4A3E"/>
+            <circle cx="39" cy="32" r="3.5" fill="#2C4A3E"/>
+            <path d="M28 39 Q32 42 36 39" stroke="#D97A54" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <span class="font-serif font-bold text-lg text-forest tracking-wide block leading-none">卡麥拉攝影實驗室</span>
+          <span class="text-xs text-sage font-mono">CAM-01 PHOTOGRAPHY LAB</span>
+        </div>
+      </a>
+
+      <!-- 右側快速錨點與小抄開關 -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-medium">
+        <a href="#module-1" class="px-3 py-1.5 rounded-lg text-charcoal hover:bg-oat hover:text-forest transition">01. 曝光與器材實驗室</a>
+        <a href="#module-2" class="px-3 py-1.5 rounded-lg text-charcoal hover:bg-oat hover:text-forest transition">02. 六大構圖對比室</a>
+        <a href="#module-3" class="px-3 py-1.5 rounded-lg text-charcoal hover:bg-oat hover:text-forest transition">03. 光影與室內外攝影棚</a>
+        <a href="#module-4" class="px-3 py-1.5 rounded-lg text-charcoal hover:bg-oat hover:text-forest transition">04. 實戰情境指南</a>
+      </nav>
+
+      <button onclick="toggleCheatSheet()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber text-white text-xs sm:text-sm font-bold shadow-sm hover:bg-forest transition">
+        <span>💡 呼叫小機器人小抄</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= 小機器人隨身小抄 Modal ================= -->
+  <div id="cheatsheet-modal" class="fixed inset-0 z-50 hidden bg-charcoal/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-cream border-2 border-forest rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative">
+      <button onclick="toggleCheatSheet()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-oat text-charcoal hover:bg-amber hover:text-white font-bold flex items-center justify-center">✕</button>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 bg-amber text-white text-xs font-bold rounded-md">CAM-01 急救包</span>
+        <h3 class="font-serif font-bold text-xl text-forest">新手出門拍照 30 秒速查小抄</h3>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-oat p-4 rounded-xl border border-sage/20">
+          <h4 class="font-bold text-forest mb-1">🌸 想拍出「背景模糊」的人像？</h4>
+          <p class="text-charcoal/80">把光圈數字調到最小（如 <code class="font-mono font-bold text-amber">f/1.4 ~ f/2.8</code>），焦距拉到 <code class="font-mono font-bold">50mm</code> 以上，離主體近一點、主體離背景遠一點！</p>
+        </div>
+        <div class="bg-oat p-4 rounded-xl border border-sage/20">
+          <h4 class="font-bold text-forest mb-1">🚃 想凝結火車 vs 拍出夜間車軌？</h4>
+          <p class="text-charcoal/80">想抓拍清楚行駛中的火車，快門調快至 <code class="font-mono font-bold text-amber">1/1000s</code>；想拍出流線車軌光束，切換至夜晚、快門放慢到 <code class="font-mono font-bold text-amber">2秒</code> 並架上三腳架！</p>
+        </div>
+        <div class="bg-oat p-4 rounded-xl border border-sage/20">
+          <h4 class="font-bold text-forest mb-1">✨ 為什麼日系照片高光都柔柔的？</h4>
+          <p class="text-charcoal/80">鏡頭前裝上 <strong>Black Mist 黑柔焦鏡</strong>！它會把刺眼的路燈、車燈與陽光變成奶油般的光暈，暗部也更有電影感。</p>
+        </div>
+        <div class="bg-oat p-4 rounded-xl border border-sage/20">
+          <h4 class="font-bold text-forest mb-1">☀️ 逆光拍照臉總是黑成一團？</h4>
+          <p class="text-charcoal/80">背對太陽雖然有超美髮絲光，但相機容易被背景騙！記得把曝光往 <code class="font-mono font-bold text-amber">+1.0 EV</code> 調亮，或對著臉部點測光。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 主內容容器 ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-16">
+
+    <!-- 頂部歡迎橫幅與靈魂角色介紹 -->
+    <section class="bg-oat rounded-2xl p-6 sm:p-8 border border-sage/20 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6">
+      <div class="space-y-3 max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest/10 text-forest text-xs font-bold">
+          <span>📷 專為剛買相機的你設計</span>
+          <span>•</span>
+          <span>零物理公式・全視覺化體驗</span>
+        </div>
+        <h1 class="font-serif text-2xl sm:text-4xl font-bold text-forest leading-tight">
+          別怕 M 模式！跟小機器人「卡麥拉」一起看懂光圈、快門與日系濾鏡
+        </h1>
+        <p class="text-charcoal/80 text-sm sm:text-base leading-relaxed">
+          現在你可以在觀景窗上方自由切換<strong>「🏞️ 湖畔瀑布」、「🚃 鐵道列車」與「🚗 城市車流」</strong>三大場景，並支援<strong>「☀️ 白晝 / 🌙 夜晚」</strong>模式！直接點擊觀景窗下方的參數，就能邊拉拉桿邊看畫面變化！
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a href="#module-1" class="px-5 py-3 rounded-xl bg-forest text-cream font-bold text-sm shadow hover:bg-sage transition">立即開始調參數 ↓</a>
+        <a href="#module-4" class="px-5 py-3 rounded-xl bg-cream text-forest border border-forest/30 font-bold text-sm hover:bg-amber hover:text-white hover:border-amber transition">直接看 4 大實戰配方 ✨</a>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         【模組一：曝光與器材實驗室 (Exposure & Gear Lab)】
+    ========================================================================== -->
+    <section id="module-1" class="scroll-mt-20 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sage/20 pb-4">
+        <div>
+          <span class="text-amber font-mono text-xs font-bold tracking-wider uppercase">MODULE 01 / EXPOSURE & GEAR LAB</span>
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-forest mt-1">曝光與器材實驗室</h2>
+        </div>
+        <!-- 曝光連動模式切換器 (核心教學機制) -->
+        <div class="bg-oat p-1.5 rounded-xl border border-sage/30 flex items-center gap-1 self-start">
+          <button id="mode-m-btn" onclick="setExposureMode('M')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition">
+            模式 A｜M 模式：真實曝光連動
+          </button>
+          <button id="mode-auto-btn" onclick="setExposureMode('AUTO')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition">
+            模式 B｜Auto 補償：單一效果觀察
+          </button>
+        </div>
+      </div>
+
+      <!-- 觀景窗 + 小機器人嚮導 雙欄佈局 -->
+      <div class="grid lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- 左側 8 欄：即時渲染虛擬觀景窗 (Viewfinder) + HUD 互動抽屜 -->
+        <div class="lg:col-span-8 flex flex-col justify-between bg-charcoal rounded-2xl overflow-hidden shadow-lg border-4 border-forest relative">
+          
+          <!-- 觀景窗頂部沉浸式工具列：場景切換器 + 晝夜切換開關 -->
+          <div class="bg-[#18201C] text-cream px-3 sm:px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-white/10 z-20">
+            <!-- 左側：3 大場景選擇膠囊 -->
+            <div class="flex items-center gap-1 bg-white/10 p-1 rounded-xl">
+              <button id="scene-btn-nature" onclick="setScene('nature')" class="px-2.5 py-1 rounded-lg font-bold bg-amber text-white shadow transition">
+                🏞️ 湖畔瀑布
+              </button>
+              <button id="scene-btn-train" onclick="setScene('train')" class="px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition">
+                🚃 鐵道列車
+              </button>
+              <button id="scene-btn-traffic" onclick="setScene('traffic')" class="px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition">
+                🚗 城市車流
+              </button>
+            </div>
+
+            <!-- 右側：晝夜模式切換 + 模式徽章 -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1 bg-white/10 p-1 rounded-xl">
+                <button id="time-btn-day" onclick="setTimeOfDay('day')" class="px-2.5 py-1 rounded-lg font-bold bg-cream text-forest shadow transition">
+                  ☀️ 白晝
+                </button>
+                <button id="time-btn-night" onclick="setTimeOfDay('night')" class="px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition">
+                  🌙 夜晚
+                </button>
+              </div>
+              <span id="vf-mode-badge" class="hidden sm:inline-block px-2 py-1 rounded-md bg-sage/40 text-cream font-mono font-bold text-[11px]">[M] 曝光連動</span>
+            </div>
+          </div>
+
+          <!-- 觀景窗核心畫面容器 -->
+          <div id="viewfinder-viewport" class="relative w-full h-[340px] sm:h-[390px] overflow-hidden select-none bg-[#1a2621]">
+            
+            <!-- 手震警告浮動膠囊 -->
+            <div id="vf-shake-warning" class="hidden absolute top-3 left-3 z-30 items-center gap-1.5 bg-amber/95 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-bounce">
+              <span>⚠️ 快門慢於 1/30s 手震模糊！請勾選「架設三腳架」或調快至 1/250s</span>
+            </div>
+
+            <!-- 觀景窗畫面總包裹層 (負責統一計算 EV 亮度與手震) -->
+            <div id="vf-scene-wrapper" class="w-full h-full relative transition-transform duration-300 origin-center">
+              
+              <!-- 1. 背景層（受光圈景深模糊 與 焦距空間壓縮影響） -->
+              <svg id="vf-bg-layer" class="w-full h-full absolute inset-0 transition-all duration-300 origin-bottom" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <!-- 天空漸層（隨晝夜與 CPL 偏光鏡變化） -->
+                  <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop id="sky-top" offset="0%" stop-color="#6897bb"/>
+                    <stop id="sky-mid" offset="60%" stop-color="#a8cce0"/>
+                    <stop id="sky-bot" offset="100%" stop-color="#e5dec9"/>
+                  </linearGradient>
+                  <!-- 湖水漸層 -->
+                  <linearGradient id="lakeGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop id="lake-top" offset="0%" stop-color="#4e7a8c"/>
+                    <stop id="lake-bot" offset="100%" stop-color="#2C4A3E"/>
+                  </linearGradient>
+                  <!-- Black Mist 高光柔焦濾鏡 -->
+                  <filter id="halationGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="12" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <!-- 共用天空底層 -->
+                <rect width="800" height="300" fill="url(#skyGrad)"/>
+
+                <!-- 夜晚專屬星點群 -->
+                <g id="vf-night-stars" opacity="0" class="transition-opacity duration-500">
+                  <circle cx="110" cy="45" r="1.5" fill="#FFF"/>
+                  <circle cx="240" cy="70" r="2" fill="#FFF" opacity="0.8"/>
+                  <circle cx="390" cy="35" r="1.5" fill="#FFF"/>
+                  <circle cx="520" cy="60" r="2" fill="#FFF" opacity="0.9"/>
+                  <circle cx="710" cy="50" r="1.5" fill="#FFF"/>
+                  <circle cx="180" cy="110" r="1.2" fill="#FFF" opacity="0.6"/>
+                </g>
+
+                <!-- 遠方太陽 / 月亮高光點 -->
+                <circle id="vf-celestial-body" cx="650" cy="85" r="28" fill="#FFF8E7" opacity="0.9"/>
+
+                <!-- 遠景群（隨焦距放大展現空間壓縮感） -->
+                <g id="vf-distant-mountains" class="transition-transform duration-300" style="transform-origin: 400px 270px;">
+                  <!-- 山脈群 (湖畔與鐵道共用) -->
+                  <g id="bg-mountains-group">
+                    <polygon points="-50,275 140,110 350,275" fill="#4A7060" opacity="0.75"/>
+                    <polygon points="180,275 420,85 660,275" fill="#375749" opacity="0.88"/>
+                    <polygon points="480,275 680,130 850,275" fill="#2C4A3E"/>
+                    <polygon points="420,85 385,125 410,118 425,130 455,125" fill="#F9F6F0" opacity="0.85"/>
+                  </g>
+
+                  <!-- 城市大樓天際線 (城市車流專屬背景) -->
+                  <g id="bg-city-skyline" class="hidden">
+                    <rect x="40" y="130" width="75" height="150" fill="#26352F"/>
+                    <rect x="130" y="95" width="90" height="185" fill="#1F2D27"/>
+                    <rect x="240" y="145" width="70" height="135" fill="#2C4239"/>
+                    <rect x="330" y="80" width="110" height="200" fill="#1B2622"/>
+                    <rect x="460" y="120" width="85" height="160" fill="#26352F"/>
+                    <rect x="565" y="105" width="95" height="175" fill="#1F2D27"/>
+                    <rect x="680" y="140" width="80" height="140" fill="#2C4239"/>
+                    <!-- 大樓夜間窗光 -->
+                    <g id="city-building-lights" fill="#FFE6A3" opacity="0.25">
+                      <rect x="145" y="115" width="12" height="18" rx="1"/><rect x="170" y="115" width="12" height="18" rx="1"/><rect x="195" y="145" width="12" height="18" rx="1"/>
+                      <rect x="350" y="105" width="16" height="22" rx="1"/><rect x="380" y="105" width="16" height="22" rx="1"/><rect x="350" y="140" width="16" height="22" rx="1"/><rect x="410" y="140" width="16" height="22" rx="1"/>
+                      <rect x="585" y="125" width="14" height="20" rx="1"/><rect x="615" y="160" width="14" height="20" rx="1"/>
+                    </g>
+                  </g>
+                </g>
+
+                <!-- 場景 A 背景細節：湖畔森林、瀑布與湖面 -->
+                <g id="bg-scene-nature">
+                  <path d="M0,270 Q120,235 260,270 T560,270 T800,270 L800,295 L0,295 Z" fill="#3c634e"/>
+                  <circle cx="95" cy="245" r="38" fill="#467359"/>
+                  <circle cx="140" cy="255" r="30" fill="#325742"/>
+                  <circle cx="690" cy="240" r="45" fill="#467359"/>
+
+                  <!-- 瀑布流水區（受快門速度影響：水珠 vs 絲絹） -->
+                  <g id="vf-waterfall" transform="translate(265, 175)">
+                    <path d="M20,0 L55,0 L70,105 L5,105 Z" fill="#d9eef7" opacity="0.7"/>
+                    <g id="waterfall-silky" opacity="0">
+                      <path d="M25,0 Q30,50 15,105" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.85" filter="blur(3px)"/>
+                      <path d="M38,0 Q42,50 38,105" stroke="#ffffff" stroke-width="10" fill="none" opacity="0.9" filter="blur(4px)"/>
+                      <path d="M50,0 Q48,50 60,105" stroke="#ffffff" stroke-width="7" fill="none" opacity="0.85" filter="blur(3px)"/>
+                      <ellipse cx="38" cy="105" rx="42" ry="10" fill="#ffffff" opacity="0.85" filter="blur(5px)"/>
+                    </g>
+                    <g id="waterfall-frozen" opacity="1">
+                      <circle cx="28" cy="20" r="2.5" fill="#ffffff"/><circle cx="45" cy="15" r="3" fill="#ffffff"/>
+                      <circle cx="35" cy="40" r="2" fill="#ffffff"/><circle cx="22" cy="60" r="3.5" fill="#ffffff"/>
+                      <circle cx="48" cy="55" r="2.5" fill="#ffffff"/><circle cx="30" cy="80" r="3" fill="#ffffff"/>
+                      <circle cx="52" cy="85" r="3.5" fill="#ffffff"/><circle cx="15" cy="98" r="4" fill="#ffffff"/>
+                      <circle cx="40" cy="100" r="3.5" fill="#ffffff"/><circle cx="60" cy="96" r="4" fill="#ffffff"/>
+                    </g>
+                  </g>
+
+                  <!-- 湖面與水底石頭（受 CPL 偏光鏡控制反光） -->
+                  <rect x="0" y="280" width="800" height="170" fill="url(#lakeGrad)"/>
+                  <g id="vf-lake-stones" opacity="0.18" class="transition-opacity duration-500">
+                    <ellipse cx="210" cy="380" rx="28" ry="14" fill="#8c7a6b"/><ellipse cx="255" cy="395" rx="20" ry="11" fill="#a39281"/>
+                    <ellipse cx="180" cy="405" rx="22" ry="12" fill="#6e5f53"/><ellipse cx="310" cy="385" rx="25" ry="13" fill="#7d7065"/>
+                    <ellipse cx="540" cy="390" rx="30" ry="14" fill="#8c7a6b"/><ellipse cx="590" cy="405" rx="22" ry="11" fill="#a39281"/>
+                  </g>
+                  <g id="vf-lake-glare" opacity="0.85" class="transition-opacity duration-500">
+                    <path d="M120,310 L680,310 L620,322 L180,322 Z" fill="#ffffff" opacity="0.65"/>
+                    <path d="M160,345 L640,345 L590,358 L210,358 Z" fill="#ffffff" opacity="0.55"/>
+                    <ellipse cx="240" cy="390" rx="110" ry="22" fill="#ffffff" opacity="0.75"/>
+                    <ellipse cx="560" cy="395" rx="120" ry="20" fill="#ffffff" opacity="0.7"/>
+                  </g>
+                </g>
+
+                <!-- 場景 B 背景細節：日系海濱鐵道與電線桿 -->
+                <g id="bg-scene-train" class="hidden">
+                  <rect x="0" y="265" width="800" height="45" fill="#3b6978"/>
+                  <rect x="0" y="305" width="800" height="145" fill="#524b42"/>
+                  <!-- 鐵軌枕木與鋼軌 -->
+                  <line x1="0" y1="335" x2="800" y2="335" stroke="#8c8275" stroke-width="5"/>
+                  <line x1="0" y1="355" x2="800" y2="355" stroke="#8c8275" stroke-width="6"/>
+                  <!-- 鐵道架空電線桿 -->
+                  <line x1="180" y1="130" x2="180" y2="335" stroke="#2c3531" stroke-width="6"/>
+                  <line x1="580" y1="130" x2="580" y2="335" stroke="#2c3531" stroke-width="6"/>
+                  <line x1="0" y1="150" x2="800" y2="150" stroke="#2c3531" stroke-width="2"/>
+                  <line x1="0" y1="175" x2="800" y2="175" stroke="#2c3531" stroke-width="1.5"/>
+                </g>
+
+                <!-- 場景 C 背景細節：十字路口柏油路與斑馬線 -->
+                <g id="bg-scene-traffic" class="hidden">
+                  <rect x="0" y="275" width="800" height="175" fill="#252927"/>
+                  <!-- 斑馬線與車道線 -->
+                  <g fill="#EFECE6" opacity="0.7">
+                    <polygon points="120,420 180,420 220,385 165,385"/>
+                    <polygon points="230,420 290,420 320,385 265,385"/>
+                    <polygon points="340,420 400,420 420,385 365,385"/>
+                    <polygon points="450,420 510,420 520,385 465,385"/>
+                    <polygon points="560,420 620,420 620,385 565,385"/>
+                  </g>
+                </g>
+
+                <!-- 共用街道暖色路燈點光源（用於展示 Black Mist 光暈 與 星芒鏡） -->
+                <g id="vf-street-lamps">
+                  <line x1="120" y1="205" x2="120" y2="330" stroke="#232926" stroke-width="5"/>
+                  <circle cx="120" cy="200" r="9" fill="#FFF3D1"/>
+                  <line x1="610" y1="190" x2="610" y2="305" stroke="#232926" stroke-width="4"/>
+                  <circle cx="610" cy="185" r="8" fill="#FFF3D1"/>
+                </g>
+
+                <!-- 大光圈圓形散景光斑 (Bokeh Circles - 光圈越大越明顯) -->
+                <g id="vf-bokeh-group" opacity="0.8" class="transition-opacity duration-300">
+                  <circle class="bokeh-circle" cx="120" cy="200" r="34" fill="#FFE6A3" opacity="0.45"/>
+                  <circle class="bokeh-circle" cx="165" cy="170" r="26" fill="#FFF5D6" opacity="0.35" style="animation-delay: 0.7s"/>
+                  <circle class="bokeh-circle" cx="610" cy="185" r="38" fill="#FFE6A3" opacity="0.45" style="animation-delay: 1.3s"/>
+                  <circle class="bokeh-circle" cx="650" cy="85" r="52" fill="#FFF9E6" opacity="0.4" style="animation-delay: 0.3s"/>
+                  <circle class="bokeh-circle" cx="490" cy="160" r="28" fill="#FFD1B3" opacity="0.35" style="animation-delay: 1.8s"/>
+                </g>
+              </svg>
+
+              <!-- 2. 前景清晰主體層（隨場景切換：日系女孩 / 疾駛火車 / 城市車流與車軌） -->
+              <svg id="vf-subject-layer" class="w-full h-full absolute inset-0 pointer-events-none transition-transform duration-300 origin-bottom" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+                
+                <!-- ======= 主體 A：湖畔瀑布場景（飛鳥 + 日系草帽女孩） ======= -->
+                <g id="subj-scene-nature">
+                  <!-- 飛鳥 -->
+                  <g id="vf-bird" transform="translate(500, 120)">
+                    <path id="bird-blur-trail" d="M-45,10 Q-20,-15 0,5 Q20,-15 45,10" stroke="#2C4A3E" stroke-width="8" fill="none" opacity="0" filter="blur(4px)"/>
+                    <path id="bird-sharp" d="M-22,6 Q-10,-12 0,2 Q10,-12 22,6" stroke="#2C4A3E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <!-- 日系草帽女孩 -->
+                  <g transform="translate(410, 235)">
+                    <path d="M-38,185 L-24,65 Q0,55 24,65 L38,185 Z" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="3"/>
+                    <path d="M-20,62 Q0,78 20,62 L16,85 Q0,95 -16,85 Z" fill="#4A7060"/>
+                    <line x1="-15" y1="68" x2="18" y2="130" stroke="#D97A54" stroke-width="5"/>
+                    <circle cx="0" cy="34" r="22" fill="#FFE8D6" stroke="#2C4A3E" stroke-width="2.5"/>
+                    <path d="M-22,30 Q-26,55 -32,68 M22,30 Q26,55 32,68" stroke="#333835" stroke-width="5" stroke-linecap="round"/>
+                    <ellipse cx="0" cy="18" rx="44" ry="10" fill="#E6C79C" stroke="#2C4A3E" stroke-width="2.5"/>
+                    <path d="M-24,18 C-22,-6 22,-6 24,18 Z" fill="#E6C79C" stroke="#2C4A3E" stroke-width="2.5"/>
+                    <path d="M-23,14 Q0,19 23,14" stroke="#D97A54" stroke-width="4" fill="none"/>
+                    <rect x="-16" y="112" width="34" height="24" rx="4" fill="#333835" stroke="#F9F6F0" stroke-width="2"/>
+                    <circle cx="1" cy="124" r="8" fill="#4A7060" stroke="#F9F6F0" stroke-width="2"/>
+                  </g>
+                </g>
+
+                <!-- ======= 主體 B：鐵道列車場景（江之電復古電車 + 平交道） ======= -->
+                <g id="subj-scene-train" class="hidden">
+                  <!-- 慢快門：火車動態模糊殘影與光軌 -->
+                  <g id="train-motion-blur" opacity="0" filter="blur(8px)">
+                    <rect x="60" y="210" width="660" height="120" rx="14" fill="#2C4A3E" opacity="0.85"/>
+                    <rect x="60" y="255" width="660" height="16" fill="#E6C79C"/>
+                    <!-- 窗戶拉長殘影光帶 -->
+                    <rect x="70" y="222" width="640" height="26" fill="#FFF3D1" opacity="0.9"/>
+                    <!-- 車頭燈與尾燈長光束 -->
+                    <line x1="40" y1="285" x2="780" y2="285" stroke="#FFF9E6" stroke-width="14"/>
+                    <line x1="50" y1="305" x2="740" y2="305" stroke="#FF4D4D" stroke-width="8"/>
+                  </g>
+
+                  <!-- 高速快門：清晰凝結的日系復古綠色電車 -->
+                  <g id="train-sharp" opacity="1">
+                    <!-- 集電弓 -->
+                    <polygon points="280,210 310,175 340,210" fill="none" stroke="#8c8275" stroke-width="3"/>
+                    <!-- 車廂本體 (上米白下墨綠) -->
+                    <rect x="170" y="205" width="440" height="122" rx="16" fill="#2C4A3E" stroke="#18201C" stroke-width="3"/>
+                    <path d="M186,205 L594,205 Q610,205 610,221 L610,262 L170,262 L170,221 Q170,205 186,205 Z" fill="#F9F6F0"/>
+                    <rect x="170" y="258" width="440" height="10" fill="#D97A54"/>
+                    <!-- 車廂窗戶群 (受晝夜影響發光) -->
+                    <g id="train-windows" fill="#a8cce0" stroke="#2C4A3E" stroke-width="2.5">
+                      <rect x="195" y="218" width="52" height="32" rx="4"/>
+                      <rect x="262" y="218" width="52" height="32" rx="4"/>
+                      <rect x="329" y="218" width="52" height="32" rx="4"/>
+                      <rect x="396" y="218" width="52" height="32" rx="4"/>
+                      <rect x="463" y="218" width="52" height="32" rx="4"/>
+                      <rect x="530" y="218" width="55" height="32" rx="4"/>
+                    </g>
+                    <!-- 車頭圓形大燈 -->
+                    <circle cx="595" cy="290" r="10" fill="#FFF8E7" stroke="#E6C79C" stroke-width="3"/>
+                    <!-- 夜間車頭探照光束 -->
+                    <polygon id="train-headlight-beam" points="605,285 800,245 800,340 605,295" fill="#FFF8E7" opacity="0"/>
+                    <!-- 車輪轉向架 -->
+                    <circle cx="230" cy="332" r="14" fill="#333835" stroke="#8c8275" stroke-width="3"/>
+                    <circle cx="275" cy="332" r="14" fill="#333835" stroke="#8c8275" stroke-width="3"/>
+                    <circle cx="505" cy="332" r="14" fill="#333835" stroke="#8c8275" stroke-width="3"/>
+                    <circle cx="550" cy="332" r="14" fill="#333835" stroke="#8c8275" stroke-width="3"/>
+                  </g>
+
+                  <!-- 前景：靜止清晰的平交道號誌桿與柵欄 (對比列車動態) -->
+                  <g transform="translate(650, 140)">
+                    <rect x="0" y="0" width="12" height="260" fill="#333835"/>
+                    <rect x="0" y="40" width="12" height="20" fill="#F9F6F0"/>
+                    <rect x="0" y="80" width="12" height="20" fill="#D97A54"/>
+                    <rect x="0" y="120" width="12" height="20" fill="#F9F6F0"/>
+                    <rect x="0" y="160" width="12" height="20" fill="#D97A54"/>
+                    <!-- 平交道閃燈 -->
+                    <rect x="-18" y="65" width="48" height="18" rx="9" fill="#18201C"/>
+                    <circle cx="-6" cy="74" r="6" fill="#FF3B30"/>
+                    <circle cx="18" cy="74" r="6" fill="#FF3B30"/>
+                  </g>
+                </g>
+
+                <!-- ======= 主體 C：城市車流場景（雙向跑車 + 慢快門流線車軌光束） ======= -->
+                <g id="subj-scene-traffic" class="hidden">
+                  <!-- 慢快門：流線型紅白雙色車軌光束 (Light Trails) -->
+                  <g id="traffic-light-trails" opacity="0">
+                    <!-- 白色/暖金車頭燈長光軌 -->
+                    <path d="M20,355 Q300,340 780,365" stroke="#FFF8E7" stroke-width="14" stroke-linecap="round" fill="none" filter="blur(3px)"/>
+                    <path d="M20,355 Q300,340 780,365" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <path d="M50,380 Q400,365 790,390" stroke="#FFE4B5" stroke-width="10" stroke-linecap="round" fill="none" filter="blur(2px)"/>
+                    <!-- 紅色車尾燈長光軌 -->
+                    <path d="M40,315 Q420,330 780,310" stroke="#FF2A2A" stroke-width="16" stroke-linecap="round" fill="none" filter="blur(4px)"/>
+                    <path d="M40,315 Q420,330 780,310" stroke="#FF9999" stroke-width="5" stroke-linecap="round" fill="none"/>
+                    <path d="M10,332 Q380,345 760,328" stroke="#D97A54" stroke-width="12" stroke-linecap="round" fill="none" filter="blur(3px)"/>
+                  </g>
+
+                  <!-- 高速快門：清晰凝結的雙向行駛汽車 -->
+                  <g id="traffic-cars-sharp" opacity="1">
+                    <!-- 左側遠去轎車 (亮紅尾燈) -->
+                    <g transform="translate(210, 290)">
+                      <path d="M15,25 L35,5 L105,5 L125,25 L145,28 L145,52 L0,52 L0,28 Z" fill="#4A7060" stroke="#18201C" stroke-width="2.5"/>
+                      <polygon points="38,9 100,9 116,25 22,25" fill="#a8cce0"/>
+                      <rect x="2" y="30" width="14" height="8" rx="2" fill="#FF3B30"/>
+                      <circle cx="32" cy="52" r="13" fill="#18201C" stroke="#EFECE6" stroke-width="3"/>
+                      <circle cx="112" cy="52" r="13" fill="#18201C" stroke="#EFECE6" stroke-width="3"/>
+                    </g>
+                    <!-- 右側駛來日系米白復古車 (亮白頭燈) -->
+                    <g transform="translate(450, 320)">
+                      <path d="M20,28 L45,4 L130,4 L155,28 L180,32 L180,60 L0,60 L0,32 Z" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="3"/>
+                      <polygon points="48,9 125,9 146,28 28,28" fill="#375749"/>
+                      <circle cx="172" cy="42" r="8" fill="#FFF8E7" stroke="#D97A54" stroke-width="2"/>
+                      <circle cx="38" cy="60" r="15" fill="#18201C" stroke="#E6C79C" stroke-width="3.5"/>
+                      <circle cx="140" cy="60" r="15" fill="#18201C" stroke="#E6C79C" stroke-width="3.5"/>
+                    </g>
+                  </g>
+                </g>
+
+                <!-- Black Mist 黑柔焦鏡專屬：高光奶油光暈疊加層 (Halation) -->
+                <g id="vf-blackmist-overlay" opacity="0" class="transition-opacity duration-500" style="mix-blend-mode: screen;">
+                  <circle cx="120" cy="200" r="46" fill="#FFE4B5" opacity="0.65" filter="blur(14px)"/>
+                  <circle cx="610" cy="185" r="48" fill="#FFE4B5" opacity="0.65" filter="blur(14px)"/>
+                  <circle cx="650" cy="85" r="85" fill="#FFF6E0" opacity="0.6" filter="blur(22px)"/>
+                  <ellipse cx="410" cy="285" rx="180" ry="45" fill="#FFF8E7" opacity="0.32" filter="blur(18px)"/>
+                </g>
+
+                <!-- 星芒鏡專屬：點光源綻放八芒星芒 (Cross Screen) -->
+                <g id="vf-starfilter-overlay" opacity="0" class="transition-opacity duration-500">
+                  <!-- 左路燈星芒 -->
+                  <g transform="translate(120, 200)" stroke="#FFFDF5" stroke-linecap="round">
+                    <line x1="-48" y1="0" x2="48" y2="0" stroke-width="2"/>
+                    <line x1="0" y1="-48" x2="0" y2="48" stroke-width="2"/>
+                    <line x1="-30" y1="-30" x2="30" y2="30" stroke-width="1.5"/>
+                    <line x1="-30" y1="30" x2="30" y2="-30" stroke-width="1.5"/>
+                    <circle cx="0" cy="0" r="6" fill="#ffffff"/>
+                  </g>
+                  <!-- 右路燈星芒 -->
+                  <g transform="translate(610, 185)" stroke="#FFFDF5" stroke-linecap="round">
+                    <line x1="-42" y1="0" x2="42" y2="0" stroke-width="2"/>
+                    <line x1="0" y1="-42" x2="0" y2="42" stroke-width="2"/>
+                    <line x1="-24" y1="-24" x2="24" y2="24" stroke-width="1.5"/>
+                    <line x1="-24" y1="24" x2="24" y2="-24" stroke-width="1.5"/>
+                    <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+                  </g>
+                  <!-- 遠方日月星芒 -->
+                  <g transform="translate(650, 85)" stroke="#FFFDF5" stroke-linecap="round">
+                    <line x1="-65" y1="0" x2="65" y2="0" stroke-width="2.5"/>
+                    <line x1="0" y1="-65" x2="0" y2="65" stroke-width="2.5"/>
+                    <line x1="-42" y1="-42" x2="42" y2="42" stroke-width="1.5"/>
+                    <line x1="-42" y1="42" x2="42" y2="-42" stroke-width="1.5"/>
+                  </g>
+                </g>
+              </svg>
+
+              <!-- 3. 色溫 (White Balance) 冷暖濾鏡疊加層 -->
+              <div id="vf-wb-tint" class="absolute inset-0 pointer-events-none transition-colors duration-300" style="mix-blend-mode: soft-light;"></div>
+
+              <!-- 4. Black Mist 暗部降低反差空氣感薄膜 -->
+              <div id="vf-mist-lift" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-500 bg-[#f7efe2]/15 backdrop-contrast-90"></div>
+            </div>
+
+            <!-- 觀景窗中央對焦框 -->
+            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div class="w-16 h-16 border border-white/40 rounded-sm flex items-center justify-center">
+                <div class="w-1.5 h-1.5 bg-amber rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- 右上角已掛載濾鏡徽章列 -->
+            <div id="vf-active-filters" class="absolute top-3 right-3 flex flex-wrap gap-1.5 justify-end pointer-events-none z-20"></div>
+          </div>
+
+          <!-- 觀景窗底部：互動式 HUD 參數選擇列 + 即時拉桿抽屜 -->
+          <div class="bg-[#18201C] text-cream font-mono border-t border-white/15 z-20">
+            
+            <!-- 第一層：可點擊的四大參數膠囊按鈕 + EV 曝光尺標 -->
+            <div class="px-3 sm:px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button id="hud-btn-aperture" onclick="selectHudParam('aperture')" class="px-2.5 py-1.5 rounded-xl border-2 border-amber bg-amber/15 text-left transition flex items-center gap-2">
+                  <div>
+                    <span class="text-sage text-[9px] block leading-none">光圈 APERTURE ▼</span>
+                    <span id="hud-aperture" class="font-bold text-amber text-xs sm:text-sm">f/2.8</span>
+                  </div>
+                </button>
+
+                <button id="hud-btn-shutter" onclick="selectHudParam('shutter')" class="px-2.5 py-1.5 rounded-xl border-2 border-transparent bg-white/5 hover:bg-white/10 text-left transition flex items-center gap-2">
+                  <div>
+                    <span class="text-sage text-[9px] block leading-none">快門 SHUTTER ▼</span>
+                    <span id="hud-shutter" class="font-bold text-cream text-xs sm:text-sm">1/250s</span>
+                  </div>
+                </button>
+
+                <button id="hud-btn-focal" onclick="selectHudParam('focal')" class="px-2.5 py-1.5 rounded-xl border-2 border-transparent bg-white/5 hover:bg-white/10 text-left transition flex items-center gap-2">
+                  <div>
+                    <span class="text-sage text-[9px] block leading-none">焦距 FOCAL ▼</span>
+                    <span id="hud-focal" class="font-bold text-cream text-xs sm:text-sm">50mm</span>
+                  </div>
+                </button>
+
+                <button id="hud-btn-wb" onclick="selectHudParam('wb')" class="px-2.5 py-1.5 rounded-xl border-2 border-transparent bg-white/5 hover:bg-white/10 text-left transition flex items-center gap-2">
+                  <div>
+                    <span class="text-sage text-[9px] block leading-none">色溫 WB ▼</span>
+                    <span id="hud-wb" class="font-bold text-cream text-xs sm:text-sm">5500K</span>
+                  </div>
+                </button>
+              </div>
+
+              <!-- 動態曝光尺標 (-3 .. 0 .. +3 EV) -->
+              <div class="flex flex-col items-center min-w-[180px] ml-auto">
+                <div class="flex justify-between w-full text-[10px] text-cream/70 px-1">
+                  <span>-3</span><span>-2</span><span>-1</span><span class="text-amber font-bold">0</span><span>+1</span><span>+2</span><span>+3</span>
+                </div>
+                <div class="w-full h-2 bg-white/10 rounded-full relative mt-0.5 overflow-hidden">
+                  <div class="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/60 -translate-x-1/2"></div>
+                  <div id="hud-ev-bar" class="absolute top-0 bottom-0 w-3 rounded-full bg-amber transition-all duration-200" style="left: calc(50% - 6px);"></div>
+                </div>
+                <span id="hud-ev-text" class="text-[10px] font-bold text-amber mt-0.5">0.0 EV (曝光標準)</span>
+              </div>
+            </div>
+
+            <!-- 第二層：向下方即時展開的參數調整拉桿抽屜 (Quick Slider Drawer) -->
+            <div id="hud-drawer" class="bg-[#212D27] px-4 py-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-[180px]">
+                <span id="drawer-param-badge" class="px-2 py-0.5 rounded bg-amber text-white text-[11px] font-bold">光圈即時調校</span>
+                <span id="drawer-param-val" class="text-sm font-bold text-cream">f/2.8</span>
+              </div>
+
+              <!-- 即時同步拉桿 -->
+              <div class="flex-1 flex items-center gap-3">
+                <span id="drawer-min-label" class="text-[11px] text-cream/60 whitespace-nowrap">f/1.4 (大光圈)</span>
+                <input id="hud-quick-slider" type="range" min="0" max="7" step="1" value="2" class="w-full hud-slider" oninput="onHudQuickSliderInput(this.value)">
+                <span id="drawer-max-label" class="text-[11px] text-cream/60 whitespace-nowrap">f/16 (全清晰)</span>
+              </div>
+
+              <!-- 新手常用刻度快速點選鈕 (Quick Pills) -->
+              <div id="drawer-quick-pills" class="flex items-center gap-1.5 shrink-0"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 右側 4 欄：靈魂角色「卡麥拉 (CAM-01)」即時互動卡片 -->
+        <div class="lg:col-span-4 bg-oat rounded-2xl p-5 border border-sage/30 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          
+          <!-- 頂部角色名牌 -->
+          <div class="flex items-center justify-between border-b border-sage/20 pb-3">
+            <div>
+              <span class="text-[11px] font-mono font-bold text-amber uppercase">PHOTOGRAPHY GUIDE BOT</span>
+              <h3 class="font-serif font-bold text-lg text-forest">嚮導小機器人：卡麥拉 (CAM-01)</h3>
+            </div>
+            <span id="bot-status-pill" class="px-2.5 py-1 rounded-full bg-forest text-cream text-xs font-bold">狀態：微笑導覽中</span>
+          </div>
+
+          <!-- 純 SVG 繪製卡麥拉 (CAM-01) -->
+          <div class="my-3 flex justify-center relative">
+            <div id="bot-flash-burst" class="w-32 h-32 rounded-full bg-white absolute -top-4 pointer-events-none opacity-0 z-20" style="filter: blur(8px);"></div>
+
+            <svg id="cam01-svg" class="w-48 h-48 sm:w-52 sm:h-52 transition-transform duration-300" viewBox="0 0 220 220" fill="none">
+              <!-- 頭頂外接閃光燈 -->
+              <rect x="92" y="10" width="36" height="16" rx="3" fill="#333835" stroke="#2C4A3E" stroke-width="2"/>
+              <rect id="bot-flash-bulb" x="96" y="13" width="28" height="10" rx="1.5" fill="#FFF8E7"/>
+
+              <!-- 墨綠色攝影師小貝雷帽／遮光罩帽簷 -->
+              <path d="M48 48 C42 22, 168 18, 178 46 C150 38, 75 40, 48 48 Z" fill="#2C4A3E"/>
+              <path d="M42 46 Q110 35 178 46" stroke="#4A7060" stroke-width="5" stroke-linecap="round"/>
+
+              <!-- 圓潤米白色方頭螢幕 -->
+              <rect x="52" y="42" width="116" height="76" rx="18" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="4"/>
+              <rect x="62" y="52" width="96" height="56" rx="12" fill="#23382F"/>
+
+              <!-- 螢幕動態表情群組 -->
+              <g id="bot-face-normal">
+                <circle cx="88" cy="76" r="7" fill="#F9F6F0"/>
+                <circle cx="90" cy="74" r="2.5" fill="#D97A54"/>
+                <circle cx="132" cy="76" r="7" fill="#F9F6F0"/>
+                <circle cx="134" cy="74" r="2.5" fill="#D97A54"/>
+                <path d="M98 92 Q110 100 122 92" stroke="#F9F6F0" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+              </g>
+
+              <g id="bot-face-warning" class="hidden">
+                <text x="81" y="85" fill="#D97A54" font-family="monospace" font-weight="bold" font-size="24">!</text>
+                <text x="125" y="85" fill="#D97A54" font-family="monospace" font-weight="bold" font-size="24">!</text>
+                <path d="M92 95 Q101 88 110 95 T128 95" stroke="#D97A54" stroke-width="3" fill="none"/>
+              </g>
+
+              <g id="bot-face-happy" class="hidden">
+                <path d="M88 70 C85 65, 78 68, 80 75 C82 80, 88 84, 88 84 C88 84, 94 80, 96 75 C98 68, 91 65, 88 70 Z" fill="#D97A54"/>
+                <path d="M132 70 C129 65, 122 68, 124 75 C126 80, 132 84, 132 84 C132 84, 138 80, 140 75 C142 68, 135 65, 132 70 Z" fill="#D97A54"/>
+                <path d="M96 90 Q110 104 124 90 Z" fill="#F9F6F0"/>
+              </g>
+
+              <!-- 墨綠色復古荔枝紋相機蒙皮機身 -->
+              <rect x="60" y="122" width="100" height="72" rx="14" fill="#2C4A3E" stroke="#333835" stroke-width="3"/>
+              
+              <!-- 胸口小型數位測光表 (即時顯示 EV) -->
+              <rect x="74" y="130" width="72" height="22" rx="4" fill="#18201C" stroke="#4A7060" stroke-width="1.5"/>
+              <text id="bot-chest-ev" x="110" y="145" text-anchor="middle" fill="#D97A54" font-family="monospace" font-size="11" font-weight="bold">EV: 0.0 OK</text>
+
+              <!-- 脖子上的底片暖橘色相機背帶 -->
+              <path d="M70 120 Q110 165 150 120" stroke="#D97A54" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+              <!-- 雙手捧著經典銀黑配色復古單眼相機 -->
+              <g id="bot-camera-prop" transform="translate(110, 172)">
+                <rect x="-28" y="-16" width="56" height="34" rx="5" fill="#333835" stroke="#E2E0DC" stroke-width="3"/>
+                <polygon points="-14,-16 -8,-23 8,-23 14,-16" fill="#E2E0DC"/>
+                <circle id="bot-lens-barrel" cx="0" cy="2" r="14" fill="#2C4A3E" stroke="#E2E0DC" stroke-width="3" class="transition-all duration-300"/>
+                <circle cx="0" cy="2" r="6" fill="#18201C"/>
+                <circle cx="-3" cy="-1" r="2" fill="#FFF"/>
+                <circle cx="-30" cy="4" r="9" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="2.5"/>
+                <circle cx="30" cy="4" r="9" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="2.5"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- 卡麥拉即時白話文對話框 -->
+          <div id="bot-speech-box" class="bg-cream rounded-xl p-4 border-2 border-forest shadow-inner space-y-1.5 transition-colors duration-300">
+            <div class="flex items-center justify-between">
+              <span id="bot-speech-title" class="text-xs font-bold text-forest">💬 卡麥拉的直覺解說：</span>
+              <span class="text-[11px] font-mono text-sage">LIVE FEEDBACK</span>
+            </div>
+            <p id="bot-speech-text" class="text-sm text-charcoal leading-relaxed">
+              嗨！你可以直接點擊左方觀景窗底部的<strong>光圈、快門、焦距、色溫</strong>展開即時拉桿，或切換上方的<strong>「🚃 鐵道列車」與「🌙 夜晚」</strong>體驗慢快門車軌喔！
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下方控制面板：四大機身參數詳細教學卡片 + 四大外掛濾鏡切換匣 -->
+      <div class="grid lg:grid-cols-12 gap-6">
+        
+        <!-- 四大機身參數控制滑桿 (8 欄) -->
+        <div class="lg:col-span-8 bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-serif font-bold text-lg text-forest">🎛️ 四大機身參數詳解與轉盤（與觀景窗拉桿雙向同步）</h3>
+            </div>
+            <button onclick="resetExposureLab()" class="text-xs font-bold text-sage hover:text-amber underline">重置回標準初始值</button>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            
+            <!-- 1. 光圈 (Aperture) + 動態 SVG 光圈葉片 -->
+            <div class="bg-cream p-4 rounded-xl border border-sage/20 flex flex-col justify-between space-y-3">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="text-xs font-mono text-sage font-bold">01. APERTURE</span>
+                  <h4 class="font-bold text-forest text-base">光圈大小（控制背景虛化與進光）</h4>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-charcoal flex items-center justify-center shrink-0 border-2 border-sage shadow-inner relative" title="光圈孔徑大小示意">
+                  <div id="aperture-hole" class="rounded-full bg-amber/90 transition-all duration-200 border border-white/50" style="width: 28px; height: 28px;"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-amber font-bold">f/1.4 (大光圈/淺景深)</span>
+                  <span id="val-aperture" class="font-bold text-forest text-sm">f/2.8</span>
+                  <span class="text-charcoal/60">f/16 (小光圈/全清晰)</span>
+                </div>
+                <input id="slider-aperture" type="range" min="0" max="7" step="1" value="2" class="w-full light-slider" oninput="selectHudParam('aperture'); updateLab('aperture')">
+              </div>
+
+              <p class="text-xs text-charcoal/80 leading-relaxed bg-oat/70 p-2.5 rounded-lg">
+                💡 <strong>打破迷思：</strong>數字越小（f/1.4），右上角的孔徑其實<strong>開得越大</strong>！進光量多，遠方背景與路燈也會化成奶油般的夢幻散景。
+              </p>
+            </div>
+
+            <!-- 2. 快門速度 (Shutter) + 架設三腳架開關 -->
+            <div class="bg-cream p-4 rounded-xl border border-sage/20 flex flex-col justify-between space-y-3">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="text-xs font-mono text-sage font-bold">02. SHUTTER SPEED</span>
+                  <h4 class="font-bold text-forest text-base">快門速度（凝結車輛 vs 絲絹車軌）</h4>
+                </div>
+                <label class="flex items-center gap-1.5 cursor-pointer bg-oat px-2.5 py-1.5 rounded-lg border border-sage/30 hover:border-amber transition shrink-0">
+                  <input id="toggle-tripod" type="checkbox" class="accent-forest w-4 h-4" onchange="updateLab('tripod')">
+                  <span class="text-xs font-bold text-forest">🗼 架設三腳架</span>
+                </label>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-forest font-bold">1/4000s (凝結瞬間)</span>
+                  <span id="val-shutter" class="font-bold text-forest text-sm">1/250s</span>
+                  <span class="text-amber font-bold">2s (絲絹/車軌光束)</span>
+                </div>
+                <input id="slider-shutter" type="range" min="0" max="9" step="1" value="4" class="w-full light-slider" oninput="selectHudParam('shutter'); updateLab('shutter')">
+              </div>
+
+              <p class="text-xs text-charcoal/80 leading-relaxed bg-oat/70 p-2.5 rounded-lg">
+                💡 <strong>動態體感：</strong>切換至「🚃 鐵道列車」或「🚗 城市車流」，比較 <code class="font-mono font-bold">1/1000s</code> 凝結車身與 <code class="font-mono font-bold text-amber">2s</code> 拉出流線車軌的強烈差異！
+              </p>
+            </div>
+
+            <!-- 3. 焦距 (Focal Length) -->
+            <div class="bg-cream p-4 rounded-xl border border-sage/20 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-mono text-sage font-bold">03. FOCAL LENGTH</span>
+                  <h4 class="font-bold text-forest text-base">鏡頭焦距（視角寬窄與空間壓縮感）</h4>
+                </div>
+                <span id="focal-category-badge" class="px-2 py-1 rounded bg-forest/10 text-forest font-mono text-xs font-bold">標準人眼視角</span>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span>16mm (廣角大景)</span>
+                  <span id="val-focal" class="font-bold text-forest text-sm">50mm</span>
+                  <span>200mm (長焦特寫)</span>
+                </div>
+                <input id="slider-focal" type="range" min="16" max="200" step="1" value="50" class="w-full light-slider" oninput="selectHudParam('focal'); updateLab('focal')">
+              </div>
+
+              <p class="text-xs text-charcoal/80 leading-relaxed bg-oat/70 p-2.5 rounded-lg">
+                💡 <strong>空間壓縮感：</strong>拉到 200mm 長焦時，注意看遠方的雪山或城市大樓會被大幅放大，彷彿緊貼在主體背後！
+              </p>
+            </div>
+
+            <!-- 4. 色溫 (White Balance) -->
+            <div class="bg-cream p-4 rounded-xl border border-sage/20 flex flex-col justify-between space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-xs font-mono text-sage font-bold">04. WHITE BALANCE</span>
+                  <h4 class="font-bold text-forest text-base">色溫白平衡（冷調科技 vs 暖調夕陽）</h4>
+                </div>
+                <span id="wb-icon-badge" class="px-2 py-1 rounded bg-amber/15 text-amber font-mono text-xs font-bold">☀️ 自然日光</span>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-xs font-mono mb-1">
+                  <span class="text-sky-700 font-bold">2500K (清冷藍調)</span>
+                  <span id="val-wb" class="font-bold text-forest text-sm">5500K</span>
+                  <span class="text-amber font-bold">9000K (濃郁暖金)</span>
+                </div>
+                <input id="slider-wb" type="range" min="2500" max="9000" step="100" value="5500" class="w-full light-slider" oninput="selectHudParam('wb'); updateLab('wb')">
+              </div>
+
+              <p class="text-xs text-charcoal/80 leading-relaxed bg-oat/70 p-2.5 rounded-lg">
+                💡 <strong>氛圍魔法：</strong>想拍日系溫暖午后可調至 <code class="font-mono">5200K~6500K</code>；想拍城市冷酷夜景則降到 <code class="font-mono">3800K</code> 左右。
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 四大外掛濾鏡切換匣 (Filter Slot) (4 欄) -->
+        <div class="lg:col-span-4 bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm flex flex-col justify-between space-y-4">
+          <div>
+            <span class="text-xs font-mono text-amber font-bold uppercase">OPTICAL FILTER SLOT</span>
+            <h3 class="font-serif font-bold text-lg text-forest">🔍 四大外掛濾鏡切換匣</h3>
+            <p class="text-xs text-charcoal/75 mt-1">可複選安裝！點擊時會為鏡頭旋上濾鏡，立即改變觀景窗光學質感：</p>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- CPL 偏光鏡 -->
+            <button id="filter-btn-cpl" onclick="toggleFilter('cpl')" class="w-full text-left p-3.5 rounded-xl bg-cream border-2 border-transparent hover:border-sage transition flex items-start gap-3 group">
+              <div id="filter-icon-cpl" class="w-9 h-9 rounded-full bg-oat border border-sage/40 flex items-center justify-center font-mono text-xs font-bold text-forest shrink-0 mt-0.5">CPL</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-sm text-forest">CPL 偏光鏡</h4>
+                  <span id="filter-tag-cpl" class="text-[10px] px-1.5 py-0.5 rounded bg-oat text-charcoal/60">未安裝</span>
+                </div>
+                <p class="text-xs text-charcoal/75 mt-0.5">消除湖面刺眼白色反光（讓水底石頭顯現），並加深藍天與翠綠樹葉飽和度。</p>
+              </div>
+            </button>
+
+            <!-- Black Mist 黑柔焦鏡 (核心定案濾鏡) -->
+            <button id="filter-btn-mist" onclick="toggleFilter('mist')" class="w-full text-left p-3.5 rounded-xl bg-cream border-2 border-transparent hover:border-sage transition flex items-start gap-3 group">
+              <div id="filter-icon-mist" class="w-9 h-9 rounded-full bg-oat border border-sage/40 flex items-center justify-center font-mono text-xs font-bold text-forest shrink-0 mt-0.5">MIST</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-sm text-forest">Black Mist 黑柔焦鏡</h4>
+                  <span id="filter-tag-mist" class="text-[10px] px-1.5 py-0.5 rounded bg-oat text-charcoal/60">未安裝</span>
+                </div>
+                <p class="text-xs text-charcoal/75 mt-0.5">將街燈、車燈與陽光高光渲染出柔和的奶油光暈（Halation），微降暗部反差，充滿日系電影感！</p>
+              </div>
+            </button>
+
+            <!-- ND 減光鏡 -->
+            <button id="filter-btn-nd" onclick="toggleFilter('nd')" class="w-full text-left p-3.5 rounded-xl bg-cream border-2 border-transparent hover:border-sage transition flex items-start gap-3 group">
+              <div id="filter-icon-nd" class="w-9 h-9 rounded-full bg-oat border border-sage/40 flex items-center justify-center font-mono text-xs font-bold text-forest shrink-0 mt-0.5">ND8</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-sm text-forest">ND 減光鏡 (-3 EV)</h4>
+                  <span id="filter-tag-nd" class="text-[10px] px-1.5 py-0.5 rounded bg-oat text-charcoal/60">未安裝</span>
+                </div>
+                <p class="text-xs text-charcoal/75 mt-0.5">幫相機戴上太陽眼鏡！強制減光 3 格，讓你在大白天把快門拉慢拍絲絹流水或動態殘影也不會過曝全白。</p>
+              </div>
+            </button>
+
+            <!-- 星芒鏡 (Cross Screen) -->
+            <button id="filter-btn-star" onclick="toggleFilter('star')" class="w-full text-left p-3.5 rounded-xl bg-cream border-2 border-transparent hover:border-sage transition flex items-start gap-3 group">
+              <div id="filter-icon-star" class="w-9 h-9 rounded-full bg-oat border border-sage/40 flex items-center justify-center font-mono text-xs font-bold text-forest shrink-0 mt-0.5">STAR</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-sm text-forest">星芒鏡 (Cross Screen)</h4>
+                  <span id="filter-tag-star" class="text-[10px] px-1.5 py-0.5 rounded bg-oat text-charcoal/60">未安裝</span>
+                </div>
+                <p class="text-xs text-charcoal/75 mt-0.5">讓畫面中的點光源（街燈、強烈反光點）瞬間綻放出璀璨的十字與八芒星芒線條。</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         【模組二：六大經典構圖對比室 (Composition Studio)】
+    ========================================================================== -->
+    <section id="module-2" class="scroll-mt-20 space-y-6">
+      <div class="border-b border-sage/20 pb-4">
+        <span class="text-amber font-mono text-xs font-bold tracking-wider uppercase">MODULE 02 / COMPOSITION STUDIO</span>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-forest mt-1">六大經典構圖對比室</h2>
+        <p class="text-sm text-charcoal/80 mt-1">不知道主體該放哪裡？切換 6 大經典構圖法則，並點擊「Before / After」觀察畫面如何從隨手拍進化成攝影作品！</p>
+      </div>
+
+      <!-- 6 個構圖法則切換頁籤 -->
+      <div class="flex flex-wrap gap-2" id="comp-tabs">
+        <button onclick="selectComp(0)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-forest text-cream shadow-sm transition">1. 九宮格構圖</button>
+        <button onclick="selectComp(1)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition">2. 前景構圖</button>
+        <button onclick="selectComp(2)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition">3. 四分構圖 (1:3 / 3:1)</button>
+        <button onclick="selectComp(3)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition">4. 三角構圖</button>
+        <button onclick="selectComp(4)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition">5. 對角線構圖</button>
+        <button onclick="selectComp(5)" class="comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition">6. 對稱構圖</button>
+      </div>
+
+      <!-- 構圖取景框與解說面板 -->
+      <div class="grid lg:grid-cols-12 gap-6 items-center bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm">
+        
+        <!-- 左側 7 欄：互動構圖取景窗 -->
+        <div class="lg:col-span-7 space-y-3">
+          <div class="relative w-full h-[320px] sm:h-[360px] rounded-xl overflow-hidden bg-charcoal border-4 border-forest shadow-md">
+            <svg id="comp-svg-canvas" class="w-full h-full" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice"></svg>
+            <div id="comp-state-badge" class="absolute top-3 left-3 px-3 py-1 rounded-lg bg-amber text-white font-bold text-xs shadow">
+              ✨ After：已套用構圖法則 (OK!)
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 bg-cream p-3 rounded-xl border border-sage/20">
+            <div class="flex items-center gap-2">
+              <button id="btn-comp-before" onclick="setCompState(false)" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-oat text-charcoal hover:bg-sage/20 transition">
+                ❌ Before (新手隨手拍 NG)
+              </button>
+              <button id="btn-comp-after" onclick="setCompState(true)" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition">
+                ⭕ After (套用構圖法則 OK)
+              </button>
+            </div>
+
+            <button id="btn-comp-grid" onclick="toggleCompOverlay()" class="px-3.5 py-2 rounded-lg text-xs font-bold border border-amber text-amber bg-amber/10 hover:bg-amber hover:text-white transition">
+              📐 顯示／隱藏構圖輔助線
+            </button>
+          </div>
+        </div>
+
+        <!-- 右側 5 欄：構圖心法解說 -->
+        <div class="lg:col-span-5 space-y-4 bg-cream p-6 rounded-2xl border border-sage/20 h-full flex flex-col justify-center">
+          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber">
+            <span id="comp-en-title">RULE OF THIRDS</span>
+          </div>
+          <h3 id="comp-zh-title" class="font-serif text-2xl font-bold text-forest">九宮格構圖（井字黃金交叉點）</h3>
+          
+          <div class="space-y-3 text-sm leading-relaxed">
+            <div class="p-3.5 rounded-xl bg-oat/80 border-l-4 border-charcoal/40">
+              <span class="font-bold text-charcoal block mb-1">❌ 新手常見 NG (Before)：</span>
+              <p id="comp-desc-before" class="text-charcoal/80">總是把人物呆板地放在正中央，地平線也剛好把畫面切成死板的正一半，看起來像證件照一樣缺乏故事感。</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-amber/10 border-l-4 border-amber">
+              <span class="font-bold text-forest block mb-1">⭕ 構圖升級秘訣 (After)：</span>
+              <p id="comp-desc-after" class="text-charcoal">打開相機的「九宮格線」，將地平線對齊下三分之一線，並把主角放在右側的<strong>發光交叉點（趣味中心）</strong>上，左側留白給視線延伸的方向！</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         【模組三：光影與室內外攝影棚 (Lighting & Environment Studio)】
+    ========================================================================== -->
+    <section id="module-3" class="scroll-mt-20 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-sage/20 pb-4">
+        <div>
+          <span class="text-amber font-mono text-xs font-bold tracking-wider uppercase">MODULE 03 / LIGHTING & ENVIRONMENT STUDIO</span>
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold text-forest mt-1">光影與室內外攝影棚</h2>
+        </div>
+
+        <div class="bg-oat p-1.5 rounded-xl border border-sage/30 flex items-center gap-1 self-start">
+          <button id="env-outdoor-btn" onclick="setLightingEnv('outdoor')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition">
+            ☀️ 室外環境（自然漫射光／黃金時刻）
+          </button>
+          <button id="env-indoor-btn" onclick="setLightingEnv('indoor')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition">
+            ☕ 室內環境（咖啡廳窗光＋暖黃燈）
+          </button>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-6">
+        
+        <!-- 左側 6 欄：6 大光源位置互動選擇器與受光模擬舞台 -->
+        <div class="lg:col-span-6 bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm flex flex-col justify-between space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-serif font-bold text-lg text-forest">💡 點擊切換 6 大光源位置</h3>
+            <span id="light-current-badge" class="px-3 py-1 rounded-full bg-amber text-white text-xs font-bold">目前光位：45° 斜側光</span>
+          </div>
+
+          <div class="relative w-full h-[320px] rounded-xl overflow-hidden bg-[#1e2923] border-2 border-forest flex items-center justify-center">
+            <svg id="lighting-stage-svg" class="w-full h-full" viewBox="0 0 500 320">
+              <defs>
+                <filter id="rimGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="6" result="blur"/>
+                  <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- 室外背景層 -->
+              <g id="light-bg-outdoor">
+                <rect width="500" height="320" fill="#2b4238"/>
+                <circle id="outdoor-backlight-halo" cx="250" cy="150" r="110" fill="#FFE4B5" opacity="0.15" filter="blur(20px)"/>
+                <path d="M0,250 Q250,220 500,250 L500,320 L0,320 Z" fill="#1f3028"/>
+              </g>
+
+              <!-- 室內咖啡廳背景層 -->
+              <g id="light-bg-indoor" class="hidden">
+                <rect width="500" height="320" fill="#2c221e"/>
+                <rect x="20" y="30" width="90" height="190" rx="6" fill="#89b0ae" stroke="#EFECE6" stroke-width="4"/>
+                <line x1="65" y1="30" x2="65" y2="220" stroke="#EFECE6" stroke-width="3"/>
+                <line x1="20" y1="125" x2="110" y2="125" stroke="#EFECE6" stroke-width="3"/>
+                <polygon points="110,30 340,90 340,300 110,220" fill="#FFF3D1" opacity="0.18"/>
+                <line x1="380" y1="0" x2="380" y2="55" stroke="#D97A54" stroke-width="3"/>
+                <path d="M360,55 L400,55 L410,75 L350,75 Z" fill="#D97A54"/>
+                <circle cx="380" cy="82" r="35" fill="#FFAE42" opacity="0.25" filter="blur(12px)"/>
+              </g>
+
+              <!-- 中央受光立體模型 -->
+              <g transform="translate(250, 175)">
+                <g id="subject-rim-light" opacity="0" filter="url(#rimGlow)">
+                  <rect x="-56" y="-66" width="112" height="84" rx="22" stroke="#FFF6D6" stroke-width="6" fill="none"/>
+                  <circle cx="0" cy="-12" r="46" stroke="#FFF6D6" stroke-width="5" fill="none"/>
+                </g>
+                <path d="M-65,95 C-65,45 65,45 65,95 Z" fill="#4A7060" stroke="#F9F6F0" stroke-width="2"/>
+                <rect x="-52" y="-62" width="104" height="78" rx="18" fill="#F9F6F0"/>
+
+                <g id="shade-front" class="hidden"></g>
+                <g id="shade-45">
+                  <path d="M0,-62 L52,-62 L52,16 L0,16 Z" fill="#18201C" opacity="0.45"/>
+                  <polygon points="12,-22 32,-22 22,-4" fill="#FFF8E7" opacity="0.85"/>
+                </g>
+                <g id="shade-90" class="hidden">
+                  <path d="M0,-62 L52,-62 L52,16 L0,16 Z" fill="#0c100e" opacity="0.82"/>
+                </g>
+                <g id="shade-back" class="hidden">
+                  <rect x="-52" y="-62" width="104" height="78" rx="18" fill="#121715" opacity="0.72"/>
+                </g>
+                <g id="shade-top" class="hidden">
+                  <rect x="-52" y="-62" width="104" height="16" rx="6" fill="#FFFFFF"/>
+                  <ellipse cx="-22" cy="-22" rx="14" ry="10" fill="#121715" opacity="0.75"/>
+                  <ellipse cx="22" cy="-22" rx="14" ry="10" fill="#121715" opacity="0.75"/>
+                  <path d="M-40,16 L40,16 L25,45 L-25,45 Z" fill="#121715" opacity="0.75"/>
+                </g>
+                <g id="shade-bottom" class="hidden">
+                  <rect x="-52" y="-62" width="104" height="48" rx="12" fill="#121715" opacity="0.78"/>
+                  <ellipse cx="0" cy="12" rx="45" ry="12" fill="#FFF8E7" opacity="0.9"/>
+                </g>
+
+                <circle cx="-22" cy="-26" r="6" fill="#2C4A3E"/>
+                <circle cx="22" cy="-26" r="6" fill="#2C4A3E"/>
+                <polygon points="0,-20 -5,-8 5,-8" fill="#D97A54"/>
+                <path d="M-14,2 Q0,10 14,2" stroke="#2C4A3E" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- 6 大光位切換按鈕列 -->
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <button onclick="selectLightPos('front')" id="lbtn-front" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition">☀️ 順光</button>
+            <button onclick="selectLightPos('45')" id="lbtn-45" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-forest text-cream shadow-sm transition">✨ 45°斜側光</button>
+            <button onclick="selectLightPos('90')" id="lbtn-90" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition">🌗 90°正側光</button>
+            <button onclick="selectLightPos('back')" id="lbtn-back" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition">🌟 逆光</button>
+            <button onclick="selectLightPos('top')" id="lbtn-top" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition">🕛 頂光</button>
+            <button onclick="selectLightPos('bottom')" id="lbtn-bottom" class="light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition">🔦 底光</button>
+          </div>
+        </div>
+
+        <!-- 右側 6 欄：光位特徵與室內外實戰秘訣 -->
+        <div class="lg:col-span-6 flex flex-col justify-between space-y-4">
+          <div class="bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded bg-amber text-white text-xs font-bold">光影筆記</span>
+              <h4 id="light-title" class="font-serif font-bold text-xl text-forest">45° 斜側光（林布蘭光／新手最推薦立體光）</h4>
+            </div>
+            <p id="light-desc" class="text-sm text-charcoal leading-relaxed">
+              光源從斜前方 45 度角照過來，讓臉部一面明亮、一面帶有柔和微暗的陰影（暗部臉頰會出現漂亮的倒三角形亮斑）。這是人像與靜物攝影最棒的光位，能完美刻畫五官立體感又不失柔和！
+            </p>
+            <div id="light-bot-tip" class="bg-cream p-3.5 rounded-xl border-l-4 border-forest text-xs sm:text-sm text-charcoal">
+              🤖 <strong>卡麥拉小撇步：</strong>在戶外拍人像時，請模特兒轉動身體，直到鼻影斜斜落在嘴角旁，就是最迷人的 45 度斜側光囉！
+            </div>
+          </div>
+
+          <div id="env-guide-card" class="bg-oat rounded-2xl p-6 border border-sage/20 shadow-sm space-y-3">
+            <h4 id="env-title" class="font-serif font-bold text-lg text-forest">☀️ 室外拍攝三大黃金關鍵（Outdoor）</h4>
+            <ul id="env-list" class="space-y-2 text-sm text-charcoal/90">
+              <li class="flex items-start gap-2"><span class="text-amber font-bold">01.</span><span><strong>鎖定黃金時刻（Golden Hour）：</strong>日出後與日落前 1 小時，陽光角度低、色溫金黃溫暖，怎麼拍都像電影劇照。</span></li>
+              <li class="flex items-start gap-2"><span class="text-amber font-bold">02.</span><span><strong>陰天是最好的天然柔光罩：</strong>雲層會把刺眼的太陽散射成均勻漫射光，皮膚質感最乾淨細膩。</span></li>
+              <li class="flex items-start gap-2"><span class="text-amber font-bold">03.</span><span><strong>避開正午頂光：</strong>中午 12 點太陽在正頭頂，容易拍出濃重黑眼圈，建議找樹蔭或走廊下拍攝。</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         【模組四：四大實戰情境指南 (Scenario Presets & Cheat Sheets)】
+    ========================================================================== -->
+    <section id="module-4" class="scroll-mt-20 space-y-6">
+      <div class="border-b border-sage/20 pb-4">
+        <span class="text-amber font-mono text-xs font-bold tracking-wider uppercase">MODULE 04 / SCENARIO PRESETS & CHEAT SHEETS</span>
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold text-forest mt-1">四大實戰情境指南（一鍵帶入對應場景與參數）</h2>
+        <p class="text-sm text-charcoal/80 mt-1">點擊卡片下方的按鈕，小機器人會自動幫你把【模組一】切換到最適合的<strong>場景、晝夜模式、機身參數與濾鏡</strong>！</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- 情境 1：日系清透人像 -->
+        <div class="bg-oat rounded-2xl p-5 border border-sage/30 shadow-sm flex flex-col justify-between hover:border-amber transition group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-forest text-cream text-xs font-bold">配方 01</span>
+              <span class="text-xs font-mono text-sage">🏞️ 湖畔白晝</span>
+            </div>
+            <h3 class="font-serif font-bold text-xl text-forest">🌸 日系清透人像</h3>
+            
+            <div class="bg-cream p-3 rounded-xl text-xs space-y-1.5 font-mono border border-sage/15">
+              <div class="flex justify-between"><span>光圈 Aperture:</span><strong class="text-amber">f/1.8 (淺景深)</strong></div>
+              <div class="flex justify-between"><span>快門 Shutter:</span><strong class="text-forest">1/500s</strong></div>
+              <div class="flex justify-between"><span>焦距 Focal:</span><strong class="text-forest">85mm 特寫</strong></div>
+              <div class="flex justify-between"><span>色溫 WB:</span><strong class="text-forest">5200K 微暖清透</strong></div>
+            </div>
+
+            <div class="text-xs space-y-1.5 text-charcoal/85">
+              <p>📐 <strong>構圖與光位：</strong>九宮格構圖＋前景虛化樹葉 ／ 下午逆光或 45° 窗光</p>
+              <p>🔍 <strong>必備外掛濾鏡：</strong><span class="text-amber font-bold">Black Mist 黑柔焦鏡</span>（營造夢幻高光奶油光暈）</p>
+            </div>
+          </div>
+
+          <button onclick="applyScenarioPreset('portrait')" class="mt-5 w-full py-2.5 px-3 rounded-xl bg-forest text-cream font-bold text-xs group-hover:bg-amber transition shadow-sm">
+            ✨ 一鍵帶入上方實驗室體驗
+          </button>
+        </div>
+
+        <!-- 情境 2：壯麗山水風景 -->
+        <div class="bg-oat rounded-2xl p-5 border border-sage/30 shadow-sm flex flex-col justify-between hover:border-amber transition group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-forest text-cream text-xs font-bold">配方 02</span>
+              <span class="text-xs font-mono text-sage">🏞️ 湖畔白晝</span>
+            </div>
+            <h3 class="font-serif font-bold text-xl text-forest">⛰️ 壯麗山水風景</h3>
+            
+            <div class="bg-cream p-3 rounded-xl text-xs space-y-1.5 font-mono border border-sage/15">
+              <div class="flex justify-between"><span>光圈 Aperture:</span><strong class="text-forest">f/8 (全景深清晰)</strong></div>
+              <div class="flex justify-between"><span>快門 Shutter:</span><strong class="text-amber">1/2s (+三腳架)</strong></div>
+              <div class="flex justify-between"><span>焦距 Focal:</span><strong class="text-forest">24mm 廣角大景</strong></div>
+              <div class="flex justify-between"><span>色溫 WB:</span><strong class="text-forest">5500K 自然日光</strong></div>
+            </div>
+
+            <div class="text-xs space-y-1.5 text-charcoal/85">
+              <p>📐 <strong>構圖與光位：</strong>四分構圖或對稱構圖 ／ 清晨或黃昏斜側光</p>
+              <p>🔍 <strong>必備外掛濾鏡：</strong><span class="text-amber font-bold">CPL 偏光鏡 ＋ ND 減光鏡</span>（消水面反光＋拍絲絹流水）</p>
+            </div>
+          </div>
+
+          <button onclick="applyScenarioPreset('landscape')" class="mt-5 w-full py-2.5 px-3 rounded-xl bg-forest text-cream font-bold text-xs group-hover:bg-amber transition shadow-sm">
+            ✨ 一鍵帶入上方實驗室體驗
+          </button>
+        </div>
+
+        <!-- 情境 3：瞬間城市街拍 (自動連動至鐵道列車) -->
+        <div class="bg-oat rounded-2xl p-5 border border-sage/30 shadow-sm flex flex-col justify-between hover:border-amber transition group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-forest text-cream text-xs font-bold">配方 03</span>
+              <span class="text-xs font-mono text-sage">🚃 鐵道白晝</span>
+            </div>
+            <h3 class="font-serif font-bold text-xl text-forest">🚶 瞬間鐵道街拍</h3>
+            
+            <div class="bg-cream p-3 rounded-xl text-xs space-y-1.5 font-mono border border-sage/15">
+              <div class="flex justify-between"><span>光圈 Aperture:</span><strong class="text-forest">f/4 (保留環境感)</strong></div>
+              <div class="flex justify-between"><span>快門 Shutter:</span><strong class="text-amber">1/1000s 凝結電車</strong></div>
+              <div class="flex justify-between"><span>焦距 Focal:</span><strong class="text-forest">35mm 人文視角</strong></div>
+              <div class="flex justify-between"><span>色溫 WB:</span><strong class="text-forest">4800K 微冷街頭</strong></div>
+            </div>
+
+            <div class="text-xs space-y-1.5 text-charcoal/85">
+              <p>📐 <strong>構圖與光位：</strong>對角線構圖或前景框架 ／ 90° 正側光或逆光剪影</p>
+              <p>🔍 <strong>必備外掛濾鏡：</strong><span class="text-amber font-bold">Black Mist 黑柔焦鏡</span>（增添街頭電影故事感）</p>
+            </div>
+          </div>
+
+          <button onclick="applyScenarioPreset('street')" class="mt-5 w-full py-2.5 px-3 rounded-xl bg-forest text-cream font-bold text-xs group-hover:bg-amber transition shadow-sm">
+            ✨ 一鍵帶入上方實驗室體驗
+          </button>
+        </div>
+
+        <!-- 情境 4：璀璨城市夜景 (自動連動至夜晚車流與車軌) -->
+        <div class="bg-oat rounded-2xl p-5 border border-sage/30 shadow-sm flex flex-col justify-between hover:border-amber transition group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md bg-forest text-cream text-xs font-bold">配方 04</span>
+              <span class="text-xs font-mono text-amber font-bold">🚗 車流夜晚</span>
+            </div>
+            <h3 class="font-serif font-bold text-xl text-forest">🌃 璀璨城市夜景</h3>
+            
+            <div class="bg-cream p-3 rounded-xl text-xs space-y-1.5 font-mono border border-sage/15">
+              <div class="flex justify-between"><span>光圈 Aperture:</span><strong class="text-forest">f/8 (銳利景深)</strong></div>
+              <div class="flex justify-between"><span>快門 Shutter:</span><strong class="text-amber">2s 車軌 (+三腳架)</strong></div>
+              <div class="flex justify-between"><span>焦距 Focal:</span><strong class="text-forest">24mm 廣角建築</strong></div>
+              <div class="flex justify-between"><span>色溫 WB:</span><strong class="text-sky-700">3800K 冷調科技感</strong></div>
+            </div>
+
+            <div class="text-xs space-y-1.5 text-charcoal/85">
+              <p>📐 <strong>構圖與光位：</strong>對角線構圖（引導車軌線條） ／ 人造點光源與環境微光</p>
+              <p>🔍 <strong>必備外掛濾鏡：</strong><span class="text-amber font-bold">星芒鏡 (Cross Screen)</span>（讓路燈綻放璀璨八芒星芒）</p>
+            </div>
+          </div>
+
+          <button onclick="applyScenarioPreset('night')" class="mt-5 w-full py-2.5 px-3 rounded-xl bg-forest text-cream font-bold text-xs group-hover:bg-amber transition shadow-sm">
+            ✨ 一鍵帶入上方實驗室體驗
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="bg-oat border-t border-sage/20 py-8 mt-16 text-center text-xs text-charcoal/70">
+    <p class="font-serif font-bold text-forest text-sm mb-1">📷 卡麥拉的攝影實驗室 (CAM-01 Interactive Photography Guide)</p>
+    <p>專為攝影初學者打造的單一檔案離線互動教材 • 日系清新文青配色與 SVG 即時光學模擬</p>
+  </footer>
+
+  <!-- ================= 核心互動邏輯 JavaScript ================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. 模組一：曝光與器材實驗室 參數定義與狀態
+    // -------------------------------------------------------------------------
+    const APERTURE_STEPS = [1.4, 1.8, 2.8, 4.0, 5.6, 8.0, 11, 16];
+    const SHUTTER_STEPS = [
+      { label: '1/4000s', sec: 1/4000 },
+      { label: '1/2000s', sec: 1/2000 },
+      { label: '1/1000s', sec: 1/1000 },
+      { label: '1/500s',  sec: 1/500 },
+      { label: '1/250s',  sec: 1/250 },
+      { label: '1/60s',   sec: 1/60 },
+      { label: '1/15s',   sec: 1/15 },
+      { label: '1/4s',    sec: 1/4 },
+      { label: '1/2s',    sec: 0.5 },
+      { label: '2s',      sec: 2.0 }
+    ];
+
+    let currentScene = 'nature';   // 'nature' | 'train' | 'traffic'
+    let currentTime = 'day';       // 'day' | 'night'
+    let activeHudParam = 'aperture'; // 'aperture' | 'shutter' | 'focal' | 'wb'
+    let exposureMode = 'M';        // 'M' | 'AUTO'
+    let activeFilters = {
+      cpl: false,
+      mist: false,
+      nd: false,
+      star: false
+    };
+
+    // 切換三大場景 (湖畔瀑布 / 鐵道列車 / 城市車流)
+    function setScene(scene) {
+      currentScene = scene;
+      ['nature', 'train', 'traffic'].forEach(s => {
+        const btn = document.getElementById(`scene-btn-${s}`);
+        btn.className = s === scene
+          ? 'px-2.5 py-1 rounded-lg font-bold bg-amber text-white shadow transition'
+          : 'px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition';
+        document.getElementById(`bg-scene-${s}`).classList.toggle('hidden', s !== scene);
+        document.getElementById(`subj-scene-${s}`).classList.toggle('hidden', s !== scene);
+      });
+
+      // 城市車流顯示大樓天際線，湖畔與鐵道顯示遠山
+      document.getElementById('bg-mountains-group').classList.toggle('hidden', scene === 'traffic');
+      document.getElementById('bg-city-skyline').classList.toggle('hidden', scene !== 'traffic');
+
+      // 若切到鐵道或車流，預設自動幫使用者展開「快門速度」即時拉桿，方便直接體感快門差異
+      if (scene === 'train' || scene === 'traffic') {
+        selectHudParam('shutter');
+      }
+      updateLab('scene_' + scene);
+    }
+
+    // 切換晝夜模式 (白晝 / 夜晚)
+    function setTimeOfDay(time) {
+      currentTime = time;
+      const dayBtn = document.getElementById('time-btn-day');
+      const nightBtn = document.getElementById('time-btn-night');
+
+      if (time === 'day') {
+        dayBtn.className = 'px-2.5 py-1 rounded-lg font-bold bg-cream text-forest shadow transition';
+        nightBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition';
+      } else {
+        nightBtn.className = 'px-2.5 py-1 rounded-lg font-bold bg-amber text-white shadow transition';
+        dayBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-cream/75 hover:text-white transition';
+      }
+      updateLab('time_' + time);
+    }
+
+    // 點擊觀景窗底部 HUD 的四大參數膠囊 -> 切換下方即時拉桿抽屜設定
+    function selectHudParam(param) {
+      activeHudParam = param;
+      ['aperture', 'shutter', 'focal', 'wb'].forEach(p => {
+        const btn = document.getElementById(`hud-btn-${p}`);
+        const valText = document.getElementById(`hud-${p}`);
+        if (p === param) {
+          btn.className = 'px-2.5 py-1.5 rounded-xl border-2 border-amber bg-amber/15 text-left transition flex items-center gap-2';
+          valText.className = 'font-bold text-amber text-xs sm:text-sm';
+        } else {
+          btn.className = 'px-2.5 py-1.5 rounded-xl border-2 border-transparent bg-white/5 hover:bg-white/10 text-left transition flex items-center gap-2';
+          valText.className = 'font-bold text-cream text-xs sm:text-sm';
+        }
+      });
+      syncHudDrawerConfig();
+    }
+
+    // 同步 HUD 抽屜拉桿的 min/max/value 與快速點選膠囊 (Quick Pills)
+    function syncHudDrawerConfig() {
+      const quickSlider = document.getElementById('hud-quick-slider');
+      const badge = document.getElementById('drawer-param-badge');
+      const minLbl = document.getElementById('drawer-min-label');
+      const maxLbl = document.getElementById('drawer-max-label');
+      const pillsBox = document.getElementById('drawer-quick-pills');
+      const valDisplay = document.getElementById('drawer-param-val');
+
+      if (activeHudParam === 'aperture') {
+        const v = document.getElementById('slider-aperture').value;
+        quickSlider.min = 0; quickSlider.max = 7; quickSlider.step = 1; quickSlider.value = v;
+        badge.textContent = '光圈即時調校';
+        valDisplay.textContent = `f/${APERTURE_STEPS[v]}`;
+        minLbl.textContent = 'f/1.4 (大光圈淺景深)';
+        maxLbl.textContent = 'f/16 (小光圈全清晰)';
+        pillsBox.innerHTML = `
+          <button onclick="setQuickValue('aperture', 0)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">f/1.4 散景</button>
+          <button onclick="setQuickValue('aperture', 2)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">f/2.8 標準</button>
+          <button onclick="setQuickValue('aperture', 5)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">f/8 風景</button>
+        `;
+      } else if (activeHudParam === 'shutter') {
+        const v = document.getElementById('slider-shutter').value;
+        quickSlider.min = 0; quickSlider.max = 9; quickSlider.step = 1; quickSlider.value = v;
+        badge.textContent = '快門即時調校';
+        valDisplay.textContent = SHUTTER_STEPS[v].label;
+        minLbl.textContent = '1/4000s (凝結瞬間)';
+        maxLbl.textContent = '2s (絲絹/車軌)';
+        pillsBox.innerHTML = `
+          <button onclick="setQuickValue('shutter', 2)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">1/1000s 凝結車輛</button>
+          <button onclick="setQuickValue('shutter', 5)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">1/60s 安全快門</button>
+          <button onclick="setQuickValue('shutter', 9)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">2s 車軌/絲絹</button>
+        `;
+      } else if (activeHudParam === 'focal') {
+        const v = document.getElementById('slider-focal').value;
+        quickSlider.min = 16; quickSlider.max = 200; quickSlider.step = 1; quickSlider.value = v;
+        badge.textContent = '焦距即時調校';
+        valDisplay.textContent = `${v}mm`;
+        minLbl.textContent = '16mm (廣角)';
+        maxLbl.textContent = '200mm (長焦壓縮)';
+        pillsBox.innerHTML = `
+          <button onclick="setQuickValue('focal', 24)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">24mm 廣角</button>
+          <button onclick="setQuickValue('focal', 50)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">50mm 標準</button>
+          <button onclick="setQuickValue('focal', 135)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">135mm 壓縮</button>
+        `;
+      } else if (activeHudParam === 'wb') {
+        const v = document.getElementById('slider-wb').value;
+        quickSlider.min = 2500; quickSlider.max = 9000; quickSlider.step = 100; quickSlider.value = v;
+        badge.textContent = '色溫即時調校';
+        valDisplay.textContent = `${v}K`;
+        minLbl.textContent = '2500K (冷藍)';
+        maxLbl.textContent = '9000K (暖金)';
+        pillsBox.innerHTML = `
+          <button onclick="setQuickValue('wb', 3800)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">3800K 冷調夜景</button>
+          <button onclick="setQuickValue('wb', 5500)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">5500K 日光</button>
+          <button onclick="setQuickValue('wb', 7500)" class="px-2 py-1 rounded bg-white/10 hover:bg-amber text-[11px] font-bold transition">7500K 夕陽</button>
+        `;
+      }
+    }
+
+    // 當使用者拖曳觀景窗下方的 HUD 即時拉桿時 -> 雙向同步更新下方卡片滑桿與觀景窗
+    function onHudQuickSliderInput(val) {
+      const targetCardSlider = document.getElementById(`slider-${activeHudParam}`);
+      if (targetCardSlider) {
+        targetCardSlider.value = val;
+      }
+      updateLab(activeHudParam);
+    }
+
+    // 點擊抽屜右側快速刻度鈕
+    function setQuickValue(param, val) {
+      const targetCardSlider = document.getElementById(`slider-${param}`);
+      if (targetCardSlider) {
+        targetCardSlider.value = val;
+      }
+      // 若點擊 2s 慢快門，貼心自動幫新手勾上三腳架避免手震干擾觀察車軌
+      if (param === 'shutter' && val >= 8) {
+        document.getElementById('toggle-tripod').checked = true;
+      }
+      updateLab(param);
+    }
+
+    // 切換 M 模式 / Auto 補償模式
+    function setExposureMode(mode) {
+      exposureMode = mode;
+      const mBtn = document.getElementById('mode-m-btn');
+      const autoBtn = document.getElementById('mode-auto-btn');
+      const badge = document.getElementById('vf-mode-badge');
+
+      if (mode === 'M') {
+        mBtn.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition';
+        autoBtn.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition';
+        badge.textContent = '[M] 曝光連動';
+        badge.className = 'hidden sm:inline-block px-2 py-1 rounded-md bg-amber text-white font-mono font-bold text-[11px]';
+      } else {
+        autoBtn.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition';
+        mBtn.className = 'px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition';
+        badge.textContent = '[Auto] 恆定 0 EV';
+        badge.className = 'hidden sm:inline-block px-2 py-1 rounded-md bg-sage text-white font-mono font-bold text-[11px]';
+      }
+      updateLab('modeSwitch');
+    }
+
+    // 切換外掛濾鏡
+    function toggleFilter(key) {
+      activeFilters[key] = !activeFilters[key];
+      const btn = document.getElementById(`filter-btn-${key}`);
+      const icon = document.getElementById(`filter-icon-${key}`);
+      const tag = document.getElementById(`filter-tag-${key}`);
+
+      if (activeFilters[key]) {
+        btn.classList.add('border-amber', 'bg-amber/5');
+        btn.classList.remove('border-transparent');
+        icon.className = 'w-9 h-9 rounded-full bg-amber text-white flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5 filter-mounted';
+        tag.textContent = '已旋上鏡頭 ✓';
+        tag.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber text-white font-bold';
+        triggerBotFlash();
+      } else {
+        btn.classList.remove('border-amber', 'bg-amber/5');
+        btn.classList.add('border-transparent');
+        icon.className = 'w-9 h-9 rounded-full bg-oat border border-sage/40 flex items-center justify-center font-mono text-xs font-bold text-forest shrink-0 mt-0.5';
+        tag.textContent = '未安裝';
+        tag.className = 'text-[10px] px-1.5 py-0.5 rounded bg-oat text-charcoal/60';
+      }
+      updateLab('filter_' + key);
+    }
+
+    // 重置實驗室參數
+    function resetExposureLab() {
+      document.getElementById('slider-aperture').value = 2; // f/2.8
+      document.getElementById('slider-shutter').value = 4;  // 1/250s
+      document.getElementById('slider-focal').value = 50;   // 50mm
+      document.getElementById('slider-wb').value = 5500;    // 5500K
+      document.getElementById('toggle-tripod').checked = false;
+      Object.keys(activeFilters).forEach(k => {
+        if (activeFilters[k]) toggleFilter(k);
+      });
+      setScene('nature');
+      setTimeOfDay('day');
+      setExposureMode('M');
+      selectHudParam('aperture');
+      updateLab('reset');
+    }
+
+    // 小機器人頭頂閃光燈特效
+    function triggerBotFlash() {
+      const burst = document.getElementById('bot-flash-burst');
+      burst.classList.remove('flash-active');
+      void burst.offsetWidth;
+      burst.classList.add('flash-active');
+    }
+
+    // 更新實驗室所有視覺與卡麥拉對話
+    function updateLab(source = '') {
+      const apIdx = parseInt(document.getElementById('slider-aperture').value);
+      const shIdx = parseInt(document.getElementById('slider-shutter').value);
+      const focal = parseInt(document.getElementById('slider-focal').value);
+      const wb = parseInt(document.getElementById('slider-wb').value);
+      const tripod = document.getElementById('toggle-tripod').checked;
+
+      const fVal = APERTURE_STEPS[apIdx];
+      const shObj = SHUTTER_STEPS[shIdx];
+
+      // 1. 更新控制面板數值、HUD 與即時抽屜
+      document.getElementById('val-aperture').textContent = `f/${fVal}`;
+      document.getElementById('val-shutter').textContent = shObj.label;
+      document.getElementById('val-focal').textContent = `${focal}mm`;
+      document.getElementById('val-wb').textContent = `${wb}K`;
+
+      document.getElementById('hud-aperture').textContent = `f/${fVal}`;
+      document.getElementById('hud-shutter').textContent = shObj.label;
+      document.getElementById('hud-focal').textContent = `${focal}mm`;
+      document.getElementById('hud-wb').textContent = `${wb}K`;
+
+      syncHudDrawerConfig();
+
+      // 2. 晝夜環境天空色彩與燈光切換
+      const isNight = currentTime === 'night';
+      if (isNight) {
+        document.getElementById('sky-top').setAttribute('stop-color', '#0b131e');
+        document.getElementById('sky-mid').setAttribute('stop-color', '#182838');
+        document.getElementById('sky-bot').setAttribute('stop-color', '#283845');
+        document.getElementById('vf-night-stars').setAttribute('opacity', '1');
+        document.getElementById('vf-celestial-body').setAttribute('fill', '#FFFDF0');
+        document.getElementById('city-building-lights').setAttribute('opacity', '0.9');
+        document.getElementById('train-windows').setAttribute('fill', '#FFE082');
+        document.getElementById('train-headlight-beam').setAttribute('opacity', '0.45');
+      } else {
+        document.getElementById('sky-top').setAttribute('stop-color', activeFilters.cpl ? '#2c6aa0' : '#6897bb');
+        document.getElementById('sky-mid').setAttribute('stop-color', '#a8cce0');
+        document.getElementById('sky-bot').setAttribute('stop-color', '#e5dec9');
+        document.getElementById('vf-night-stars').setAttribute('opacity', '0');
+        document.getElementById('vf-celestial-body').setAttribute('fill', '#FFF8E7');
+        document.getElementById('city-building-lights').setAttribute('opacity', '0.15');
+        document.getElementById('train-windows').setAttribute('fill', '#a8cce0');
+        document.getElementById('train-headlight-beam').setAttribute('opacity', '0');
+      }
+
+      // 3. 光圈葉片孔徑大小與背景景深模糊 (Bokeh)
+      const holeSize = Math.max(8, 36 - apIdx * 3.8);
+      const holeEl = document.getElementById('aperture-hole');
+      holeEl.style.width = `${holeSize}px`;
+      holeEl.style.height = `${holeSize}px`;
+
+      const bgBlurPx = Math.max(0, (6 - apIdx) * 2.2);
+      document.getElementById('vf-bg-layer').style.filter = `blur(${bgBlurPx}px)`;
+      document.getElementById('vf-bokeh-group').style.opacity = Math.max(0, (5 - apIdx) / 5);
+
+      // 4. 快門速度：三大場景的動態模糊 vs 瞬間凝結
+      // shIdx: 0(1/4000s) .. 4(1/250s) .. 9(2s)
+      const motionProgress = Math.min(1, Math.max(0, (shIdx - 3) / 5));
+
+      // A. 瀑布與飛鳥
+      document.getElementById('waterfall-silky').setAttribute('opacity', motionProgress);
+      document.getElementById('waterfall-frozen').setAttribute('opacity', 1 - motionProgress * 0.85);
+      document.getElementById('bird-blur-trail').setAttribute('opacity', motionProgress * 0.85);
+
+      // B. 鐵道火車 (高速快門清晰車廂 vs 慢快門動態殘影)
+      document.getElementById('train-motion-blur').setAttribute('opacity', motionProgress);
+      document.getElementById('train-sharp').setAttribute('opacity', 1 - motionProgress * 0.78);
+
+      // C. 城市車流 (高速快門清晰汽車 vs 慢快門流線紅白車軌光束)
+      document.getElementById('traffic-light-trails').setAttribute('opacity', motionProgress);
+      document.getElementById('traffic-cars-sharp').setAttribute('opacity', 1 - motionProgress * 0.82);
+
+      // 慢於 1/30s (shIdx >= 6) 且未上腳架 -> 觸發手震
+      const isCameraShake = (shIdx >= 6) && !tripod;
+      const sceneWrapper = document.getElementById('vf-scene-wrapper');
+      const shakeWarn = document.getElementById('vf-shake-warning');
+      if (isCameraShake) {
+        sceneWrapper.classList.add('shake-active');
+        shakeWarn.classList.remove('hidden');
+        shakeWarn.classList.add('flex');
+      } else {
+        sceneWrapper.classList.remove('shake-active');
+        shakeWarn.classList.add('hidden');
+        shakeWarn.classList.remove('flex');
+      }
+
+      // 5. 焦距：主體微縮放 + 遠山/大樓空間壓縮感 + 小機器人手中鏡頭伸縮
+      const subjectScale = 0.82 + ((focal - 16) / 184) * 0.55;
+      const mountainScale = 0.75 + ((focal - 16) / 184) * 1.45;
+      document.getElementById('vf-subject-layer').style.transform = `scale(${subjectScale})`;
+      document.getElementById('vf-distant-mountains').style.transform = `scale(${mountainScale})`;
+
+      const botLensRadius = 11 + ((focal - 16) / 184) * 7;
+      document.getElementById('bot-lens-barrel').setAttribute('r', botLensRadius);
+
+      const focalBadge = document.getElementById('focal-category-badge');
+      if (focal <= 35) focalBadge.textContent = '16-35mm 廣角風景大景';
+      else if (focal <= 65) focalBadge.textContent = '50mm 標準自然人眼';
+      else focalBadge.textContent = '85-200mm 人像特寫長焦';
+
+      // 6. 色溫 (White Balance) 冷暖色調濾鏡
+      const wbTint = document.getElementById('vf-wb-tint');
+      const wbBadge = document.getElementById('wb-icon-badge');
+      if (wb < 4800) {
+        const blueAlpha = ((4800 - wb) / 2300) * 0.55;
+        wbTint.style.backgroundColor = `rgba(35, 115, 220, ${blueAlpha})`;
+        wbBadge.textContent = '❄️ 清冷藍調 / 鎢絲燈';
+      } else if (wb > 5800) {
+        const warmAlpha = ((wb - 5800) / 3200) * 0.6;
+        wbTint.style.backgroundColor = `rgba(240, 130, 35, ${warmAlpha})`;
+        wbBadge.textContent = '🌅 濃郁夕陽暖金';
+      } else {
+        wbTint.style.backgroundColor = 'transparent';
+        wbBadge.textContent = '☀️ 5500K 自然日光';
+      }
+
+      // 7. 四大外掛濾鏡光學效果
+      document.getElementById('vf-lake-glare').style.opacity = activeFilters.cpl ? '0.08' : '0.85';
+      document.getElementById('vf-lake-stones').style.opacity = activeFilters.cpl ? '0.92' : '0.18';
+      document.getElementById('vf-blackmist-overlay').style.opacity = activeFilters.mist ? '1' : '0';
+      document.getElementById('vf-mist-lift').style.opacity = activeFilters.mist ? '1' : '0';
+      document.getElementById('vf-starfilter-overlay').style.opacity = activeFilters.star ? '1' : '0';
+
+      // 更新觀景窗右上角已安裝濾鏡標籤
+      const badgeContainer = document.getElementById('vf-active-filters');
+      badgeContainer.innerHTML = '';
+      const filterNames = { cpl: 'CPL 偏光鏡', mist: 'Black Mist 黑柔焦鏡', nd: 'ND 減光鏡 (-3EV)', star: '星芒鏡' };
+      Object.keys(activeFilters).forEach(k => {
+        if (activeFilters[k]) {
+          const span = document.createElement('span');
+          span.className = 'px-2.5 py-1 rounded-full bg-amber text-white font-mono text-[11px] font-bold shadow';
+          span.textContent = `● ${filterNames[k]}`;
+          badgeContainer.appendChild(span);
+        }
+      });
+
+      // 8. 計算 EV 曝光值與觀景窗亮度連動 (白晝與夜晚具有不同環境光基準)
+      // 白晝基準 0 EV = f/2.8 (apIdx=2) + 1/250s (shIdx=4)
+      // 夜晚進光量較少，基準往暗偏移 -3 EV，鼓勵新手開大光圈或拉長快門拍夜景
+      const nightEvOffset = isNight ? -3 : 0;
+      let rawEV = (2 - apIdx) + (shIdx - 4) + nightEvOffset - (activeFilters.nd ? 3 : 0);
+      let displayEV = exposureMode === 'AUTO' ? 0 : Math.max(-3, Math.min(3, rawEV));
+
+      const evPercent = ((displayEV + 3) / 6) * 100;
+      document.getElementById('hud-ev-bar').style.left = `calc(${evPercent}% - 6px)`;
+      const evSign = displayEV > 0 ? `+${displayEV.toFixed(1)}` : displayEV.toFixed(1);
+      document.getElementById('hud-ev-text').textContent = `${evSign} EV ${displayEV === 0 ? '(曝光標準)' : (displayEV > 0 ? '(偏亮/過曝)' : '(偏暗/欠曝)')}`;
+      document.getElementById('bot-chest-ev').textContent = `EV: ${evSign}`;
+
+      const brightnessFactor = Math.pow(1.42, displayEV);
+      document.getElementById('vf-scene-wrapper').style.filter = `brightness(${brightnessFactor})`;
+
+      // 9. 更新小機器人「卡麥拉 (CAM-01)」表情與即時白話對話
+      updateCam01Feedback(displayEV, isCameraShake, fVal, shObj, focal, source);
+    }
+
+    function updateCam01Feedback(ev, isShake, fVal, shObj, focal, source) {
+      const faceNormal = document.getElementById('bot-face-normal');
+      const faceWarn = document.getElementById('bot-face-warning');
+      const faceHappy = document.getElementById('bot-face-happy');
+      const svgBot = document.getElementById('cam01-svg');
+      const statusPill = document.getElementById('bot-status-pill');
+      const speechBox = document.getElementById('bot-speech-box');
+      const speechTitle = document.getElementById('bot-speech-title');
+      const speechText = document.getElementById('bot-speech-text');
+
+      faceNormal.classList.add('hidden');
+      faceWarn.classList.add('hidden');
+      faceHappy.classList.add('hidden');
+      svgBot.classList.remove('bot-panic-anim');
+
+      // 優先判斷警告狀態：嚴重過曝、嚴重欠曝、或手震
+      if (Math.abs(ev) >= 2 || isShake) {
+        faceWarn.classList.remove('hidden');
+        svgBot.classList.add('bot-panic-anim');
+        statusPill.textContent = '⚠️ 急救警告中！';
+        statusPill.className = 'px-2.5 py-1 rounded-full bg-amber text-white text-xs font-bold';
+        speechBox.className = 'bg-amber/15 rounded-xl p-4 border-2 border-amber shadow-inner space-y-1.5';
+        speechTitle.textContent = '🚨 卡麥拉的曝光急救提示：';
+
+        if (ev >= 2) {
+          speechText.innerHTML = `哇！畫面<strong>嚴重過曝（+${ev} EV 一片慘白）</strong>啦！進光量太多了，快在觀景窗下方把<strong>光圈調小</strong>、把<strong>快門調快</strong>，或是裝上右邊的 <strong>ND 減光鏡</strong>！`;
+        } else if (ev <= -2) {
+          speechText.innerHTML = `嗚嗚，畫面<strong>嚴重欠曝（${ev} EV 太暗了）</strong>！${currentTime === 'night' ? '夜晚環境光很少，' : ''}快把<strong>光圈開大（如 f/1.4 ~ f/2.8）</strong>，或是<strong>放慢快門速度</strong>讓更多光線進來吧！`;
+        } else if (isShake) {
+          speechText.innerHTML = `手在抖啦！目前的快門 <strong>${shObj.label}</strong> 慢於安全快門（1/30秒），手持拍照一定會晃動模糊！請立刻勾選下方的<strong>「🗼 架設三腳架」</strong>穩定相機！`;
+        }
+        return;
+      }
+
+      // 切換場景或晝夜時的專屬教學引導
+      if (source.startsWith('scene_') || source.startsWith('time_')) {
+        faceHappy.classList.remove('hidden');
+        statusPill.textContent = '✨ 場景導覽中';
+        statusPill.className = 'px-2.5 py-1 rounded-full bg-forest text-cream text-xs font-bold';
+        speechBox.className = 'bg-cream rounded-xl p-4 border-2 border-amber shadow-inner space-y-1.5';
+        speechTitle.textContent = '🎬 卡麥拉的場景攻略：';
+
+        if (currentScene === 'train') {
+          speechText.innerHTML = `已切換至<strong>「🚃 鐵道列車」</strong>！我幫你展開了底部的<strong>快門即時拉桿</strong>：試著點選 <code class="font-mono font-bold text-amber">1/1000s 凝結車輛</code> 抓拍清晰電車，再點選 <code class="font-mono font-bold text-amber">2s</code> 感受列車疾駛而過的動態模糊殘影！`;
+        } else if (currentScene === 'traffic') {
+          speechText.innerHTML = `已切換至<strong>「🚗 城市車流」</strong>！強烈推薦點擊上方的<strong>「🌙 夜晚」</strong>，並將快門拉到 <code class="font-mono font-bold text-amber">2s</code>（記得開三腳架），就能拍出超震撼的<strong>紅白雙色車軌光束</strong>喔！`;
+        } else {
+          speechText.innerHTML = `回到<strong>「🏞️ 湖畔瀑布」</strong>場景！這裡最適合練習用大光圈拍出<strong>人像淺景深</strong>，或是裝上 <strong>CPL 偏光鏡</strong>消除湖面反光！`;
+        }
+        return;
+      }
+
+      // 驚喜狀態：剛裝上濾鏡或套用實戰配方
+      if (source.startsWith('filter_') || source === 'preset') {
+        faceHappy.classList.remove('hidden');
+        statusPill.textContent = '✨ 驚喜稱讚中！';
+        statusPill.className = 'px-2.5 py-1 rounded-full bg-amber text-white text-xs font-bold';
+        speechBox.className = 'bg-cream rounded-xl p-4 border-2 border-amber shadow-inner space-y-1.5';
+        speechTitle.textContent = '✨ 卡麥拉大讚賞：';
+
+        if (source === 'filter_mist' && activeFilters.mist) {
+          speechText.innerHTML = `太有品味了！裝上 <strong>Black Mist 黑柔焦鏡</strong>後，觀景窗裡的街燈、車燈與高光都暈開成柔和的奶油光暈（Halation），日系電影感瞬間拉滿！`;
+        } else if (source === 'filter_cpl' && activeFilters.cpl) {
+          speechText.innerHTML = `神奇吧！裝上 <strong>CPL 偏光鏡</strong>後，湖面上刺眼的白色反光瞬間消失，水底的鵝卵石都看清楚了！`;
+        } else if (source === 'filter_nd' && activeFilters.nd) {
+          speechText.innerHTML = `已掛上 <strong>ND 減光鏡 (-3 EV)</strong>！現在就算在大白天把快門放慢拍絲絹流水或電車殘影，也不怕過曝全白囉！`;
+        } else if (source === 'filter_star' && activeFilters.star) {
+          speechText.innerHTML = `璀璨度滿分！<strong>星芒鏡</strong>讓路燈折射出漂亮的八芒星芒，搭配夜晚車流場景簡直無敵！`;
+        } else if (source === 'preset') {
+          speechText.innerHTML = `喀嚓！我已經幫你自動切換到對應的<strong>場景、晝夜模式與最佳參數濾鏡配方</strong>了！你也可以直接拖曳觀景窗下方的拉桿微調看看！`;
+        }
+        return;
+      }
+
+      // 正常微笑導覽狀態
+      faceNormal.classList.remove('hidden');
+      statusPill.textContent = '狀態：微笑導覽中';
+      statusPill.className = 'px-2.5 py-1 rounded-full bg-forest text-cream text-xs font-bold';
+      speechBox.className = 'bg-cream rounded-xl p-4 border-2 border-forest shadow-inner space-y-1.5';
+      speechTitle.textContent = '💬 卡麥拉的直覺解說：';
+      speechText.innerHTML = `目前曝光很棒（<strong>${ev.toFixed(1)} EV</strong>）！在 <strong>f/${fVal}</strong> 與快門 <strong>${shObj.label}</strong> 下，${shObj.sec >= 0.25 ? '慢快門呈現出迷人的動態流線軌跡' : '高速快門俐落地凝結了畫面瞬間'}。點擊觀景窗底部參數即可直接拉動調整！`;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. 模組二：六大經典構圖對比室 邏輯與 SVG 渲染
+    // -------------------------------------------------------------------------
+    let currentCompIdx = 0;
+    let isCompAfter = true;
+    let showCompOverlay = true;
+
+    const COMP_DATA = [
+      {
+        en: 'RULE OF THIRDS',
+        zh: '九宮格構圖（井字黃金交叉點）',
+        before: '總是把人物呆板地放在正中央，地平線也剛好把畫面切成死板的正一半，看起來像證件照一樣缺乏故事感。',
+        after: '打開相機的「九宮格線」，將地平線對齊下三分之一線，並把主角放在右側的發光交叉點（趣味中心）上，左側留白給視線延伸的方向！'
+      },
+      {
+        en: 'FOREGROUND FRAMING',
+        zh: '前景構圖（創造前中後三層立體空間）',
+        before: '直接單調地拍攝遠處的人物或建築，畫面只有一個平面，看起來扁平又缺乏臨場感。',
+        after: '走到櫻花樹枝或窗框旁，開啟大光圈讓邊緣的櫻花虛化成柔和前景框架，瞬間創造出前、中、後三層立體感與浪漫窺視感！'
+      },
+      {
+        en: 'QUARTER RATIO COMPOSITION',
+        zh: '四分構圖（1:3 壯闊天空 vs 3:1 大地花海）',
+        before: '天空與地面各佔一半（五五分），讓觀眾搞不清楚你到底想拍漂亮的雲彩，還是地上的風景。',
+        after: '果斷取捨！想強調壯闊晚霞就把地平線壓在最下方四分之一線（1:3）；想強調花海就把地平線拉到最上方（3:1）。'
+      },
+      {
+        en: 'TRIANGLE COMPOSITION',
+        zh: '三角構圖（金字塔般的安定與平衡感）',
+        before: '拍攝坐姿人像或咖啡廳靜物時，手腳與物品擺放鬆散，畫面重心歪斜不穩。',
+        after: '引導模特兒將手肘微張、裙擺自然鋪開，讓頭部與雙手底座連成一個穩定的正三角形結構，視覺上立刻充滿安定與高級感！'
+      },
+      {
+        en: 'DIAGONAL COMPOSITION',
+        zh: '對角線構圖（打破呆板的動態延伸張力）',
+        before: '橫平豎直地站在馬路或鐵軌正前方拍攝，線條死板缺乏動感，視線一下子就停住了。',
+        after: '稍微側身改變角度，讓街道、橋樑與光影沿著畫面「左下到右上」的對角線延伸，自然引導觀眾的眼睛走進照片深處！'
+      },
+      {
+        en: 'SYMMETRY COMPOSITION',
+        zh: '對稱構圖（極致工整、寧靜的鏡像美學）',
+        before: '拍攝湖面倒影或神社長廊時，相機歪斜、中心軸線偏掉，完全破壞了原本寧靜的平衡感。',
+        after: '對齊垂直與水平正中軸線，讓上方山景與下方湖面倒影 1:1 精準鏡像對稱，呈現令人屏息的極簡儀式感！'
+      }
+    ];
+
+    function selectComp(idx) {
+      currentCompIdx = idx;
+      const tabs = document.querySelectorAll('.comp-tab');
+      tabs.forEach((t, i) => {
+        t.className = i === idx
+          ? 'comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-forest text-cream shadow-sm transition'
+          : 'comp-tab px-4 py-2.5 rounded-xl font-bold text-sm bg-oat text-charcoal hover:bg-sage/20 transition';
+      });
+
+      const d = COMP_DATA[idx];
+      document.getElementById('comp-en-title').textContent = d.en;
+      document.getElementById('comp-zh-title').textContent = d.zh;
+      document.getElementById('comp-desc-before').textContent = d.before;
+      document.getElementById('comp-desc-after').textContent = d.after;
+
+      renderCompCanvas();
+    }
+
+    function setCompState(afterState) {
+      isCompAfter = afterState;
+      const bBtn = document.getElementById('btn-comp-before');
+      const aBtn = document.getElementById('btn-comp-after');
+      const badge = document.getElementById('comp-state-badge');
+
+      if (afterState) {
+        aBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition';
+        bBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-oat text-charcoal hover:bg-sage/20 transition';
+        badge.textContent = '✨ After：已套用構圖法則 (OK!)';
+        badge.className = 'absolute top-3 left-3 px-3 py-1 rounded-lg bg-amber text-white font-bold text-xs shadow';
+      } else {
+        bBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-charcoal text-cream shadow-sm transition';
+        aBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-oat text-charcoal hover:bg-sage/20 transition';
+        badge.textContent = '❌ Before：新手隨手拍 (NG)';
+        badge.className = 'absolute top-3 left-3 px-3 py-1 rounded-lg bg-charcoal/90 text-white font-bold text-xs shadow';
+      }
+      renderCompCanvas();
+    }
+
+    function toggleCompOverlay() {
+      showCompOverlay = !showCompOverlay;
+      renderCompCanvas();
+    }
+
+    function renderCompCanvas() {
+      const svg = document.getElementById('comp-svg-canvas');
+      let html = '';
+
+      if (currentCompIdx === 0) {
+        const horizonY = isCompAfter ? 240 : 180;
+        const girlX = isCompAfter ? 400 : 300;
+        const girlY = isCompAfter ? 215 : 175;
+        html = `
+          <rect width="600" height="360" fill="#a8cce0"/>
+          <circle cx="150" cy="95" r="32" fill="#FFF8E7" opacity="0.9"/>
+          <rect class="comp-el" x="0" y="${horizonY}" width="600" height="200" fill="#4A7060"/>
+          <g class="comp-el" transform="translate(${girlX}, ${girlY})">
+            <path d="M-24,95 L-15,25 L15,25 L24,95 Z" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="2.5"/>
+            <circle cx="0" cy="5" r="16" fill="#FFE8D6" stroke="#2C4A3E" stroke-width="2.5"/>
+            <ellipse cx="0" cy="-6" rx="30" ry="7" fill="#E6C79C" stroke="#2C4A3E" stroke-width="2"/>
+          </g>
+        `;
+        if (showCompOverlay) {
+          html += `
+            <g stroke="#F9F6F0" stroke-width="1.5" stroke-dasharray="6,6" opacity="0.85">
+              <line x1="200" y1="0" x2="200" y2="360"/><line x1="400" y1="0" x2="400" y2="360"/>
+              <line x1="0" y1="120" x2="600" y2="120"/><line x1="0" y1="240" x2="600" y2="240"/>
+            </g>
+            <circle cx="200" cy="120" r="6" fill="#D97A54"/><circle cx="400" cy="120" r="6" fill="#D97A54"/>
+            <circle cx="200" cy="240" r="6" fill="#D97A54"/><circle cx="400" cy="240" r="9" fill="#D97A54" stroke="#FFF" stroke-width="2"/>
+          `;
+        }
+      } else if (currentCompIdx === 1) {
+        const fgOffset = isCompAfter ? 0 : -180;
+        html = `
+          <rect width="600" height="360" fill="#d9e8e3"/>
+          <polygon points="80,280 280,110 480,280" fill="#4A7060" opacity="0.6"/>
+          <rect y="280" width="600" height="80" fill="#2C4A3E"/>
+          <g transform="translate(320, 210)">
+            <polygon points="-50,0 0,-35 50,0" fill="#2C4A3E"/>
+            <rect x="-35" y="0" width="70" height="70" fill="#F9F6F0" stroke="#2C4A3E" stroke-width="3"/>
+            <circle cx="0" cy="35" r="14" fill="#D97A54"/>
+          </g>
+          <g class="comp-el" transform="translate(${fgOffset}, 0)" style="filter: blur(4px);">
+            <path d="M0,0 Q160,40 220,140 Q110,90 0,160 Z" fill="#f4b6c2" opacity="0.9"/>
+            <circle cx="150" cy="60" r="35" fill="#ffd1dc"/>
+            <circle cx="80" cy="110" r="45" fill="#f4b6c2"/>
+            <path d="M600,360 Q450,310 420,210 Q520,250 600,190 Z" fill="#2C4A3E" opacity="0.85"/>
+          </g>
+        `;
+        if (showCompOverlay) {
+          html += `<rect x="130" y="70" width="340" height="220" rx="12" fill="none" stroke="#D97A54" stroke-width="3" stroke-dasharray="8,6"/>`;
+        }
+      } else if (currentCompIdx === 2) {
+        const skyHeight = isCompAfter ? 270 : 180;
+        html = `
+          <rect width="600" height="360" fill="#e89973"/>
+          <circle cx="450" cy="110" r="45" fill="#FFF3D1" opacity="0.85"/>
+          <path d="M80,90 Q180,60 280,90 T480,80" stroke="#FFF8E7" stroke-width="18" stroke-linecap="round" fill="none" opacity="0.6"/>
+          <rect class="comp-el" x="0" y="${skyHeight}" width="600" height="200" fill="#2C4A3E"/>
+        `;
+        if (showCompOverlay) {
+          html += `
+            <g stroke="#F9F6F0" stroke-width="1.5" stroke-dasharray="5,5">
+              <line x1="0" y1="90" x2="600" y2="90"/>
+              <line x1="0" y1="180" x2="600" y2="180"/>
+              <line x1="0" y1="270" x2="600" y2="270" stroke="#D97A54" stroke-width="3"/>
+            </g>
+            <text x="20" y="255" fill="#FFF" font-family="monospace" font-size="13" font-weight="bold">3/4 壯闊天空區</text>
+            <text x="20" y="300" fill="#D97A54" font-family="monospace" font-size="13" font-weight="bold">1/4 地面剪影基準線</text>
+          `;
+        }
+      } else if (currentCompIdx === 3) {
+        const shiftX = isCompAfter ? 300 : 210;
+        const spread = isCompAfter ? 95 : 35;
+        html = `
+          <rect width="600" height="360" fill="#EFECE6"/>
+          <rect y="280" width="600" height="80" fill="#d5cfc2"/>
+          <g class="comp-el" transform="translate(${shiftX}, 280)">
+            <polygon class="comp-el" points="0,-150 -${spread},0 ${spread},0" fill="#4A7060"/>
+            <circle cx="0" cy="-165" r="24" fill="#FFE8D6" stroke="#2C4A3E" stroke-width="3"/>
+            <ellipse cx="0" cy="-182" rx="40" ry="9" fill="#E6C79C" stroke="#2C4A3E" stroke-width="2.5"/>
+          </g>
+        `;
+        if (showCompOverlay) {
+          html += `
+            <polygon points="300,85 190,285 410,285" fill="none" stroke="#D97A54" stroke-width="3.5" stroke-dasharray="8,6"/>
+            <circle cx="300" cy="85" r="7" fill="#D97A54"/>
+            <circle cx="190" cy="285" r="7" fill="#D97A54"/>
+            <circle cx="410" cy="285" r="7" fill="#D97A54"/>
+          `;
+        }
+      } else if (currentCompIdx === 4) {
+        html = `<rect width="600" height="360" fill="#2C4A3E"/>`;
+        if (isCompAfter) {
+          html += `
+            <polygon points="0,360 140,360 600,70 600,0 480,0 0,290" fill="#EFECE6"/>
+            <line x1="30" y1="340" x2="570" y2="20" stroke="#D97A54" stroke-width="4" stroke-dasharray="14,10"/>
+          `;
+        } else {
+          html += `
+            <rect x="0" y="140" width="600" height="90" fill="#EFECE6"/>
+            <line x1="0" y1="185" x2="600" y2="185" stroke="#4A7060" stroke-width="4" stroke-dasharray="14,10"/>
+          `;
+        }
+        if (showCompOverlay) {
+          html += `<line x1="40" y1="330" x2="560" y2="30" stroke="#D97A54" stroke-width="3"/>`;
+        }
+      } else if (currentCompIdx === 5) {
+        const tilt = isCompAfter ? 'rotate(0 300 180)' : 'rotate(-6 260 210) translate(-35, 20)';
+        html = `
+          <rect width="600" height="360" fill="#a8cce0"/>
+          <g class="comp-el" transform="${tilt}">
+            <polygon points="150,180 300,55 450,180" fill="#2C4A3E"/>
+            <rect x="275" y="125" width="8" height="55" fill="#D97A54"/>
+            <rect x="317" y="125" width="8" height="55" fill="#D97A54"/>
+            <rect x="260" y="120" width="80" height="9" rx="2" fill="#D97A54"/>
+            <rect x="0" y="180" width="600" height="180" fill="#3b6978" opacity="0.85"/>
+            <polygon points="150,180 300,305 450,180" fill="#2C4A3E" opacity="0.65"/>
+            <rect x="275" y="180" width="8" height="55" fill="#D97A54" opacity="0.65"/>
+            <rect x="317" y="180" width="8" height="55" fill="#D97A54" opacity="0.65"/>
+            <rect x="260" y="231" width="80" height="9" rx="2" fill="#D97A54" opacity="0.65"/>
+          </g>
+        `;
+        if (showCompOverlay) {
+          html += `
+            <line x1="300" y1="0" x2="300" y2="360" stroke="#D97A54" stroke-width="2.5" stroke-dasharray="6,6"/>
+            <line x1="0" y1="180" x2="600" y2="180" stroke="#D97A54" stroke-width="2.5" stroke-dasharray="6,6"/>
+          `;
+        }
+      }
+
+      svg.innerHTML = html;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. 模組三：光影與室內外攝影棚 邏輯
+    // -------------------------------------------------------------------------
+    const LIGHT_POS_INFO = {
+      front: {
+        name: '順光（正面光）',
+        desc: '光源從相機正後方直接照向主體正面。色彩最飽滿、細節最清晰，完全沒有奇怪的陰影，但缺點是畫面較平淡、缺乏立體深邃感。',
+        tip: '🤖 <strong>卡麥拉小撇步：</strong>順光拍人像時，小心陽光太刺眼讓模特兒瞇瞇眼！可以先請對方閉眼，喊「1、2、3」睜開的瞬間按下快門！'
+      },
+      '45': {
+        name: '45° 斜側光（林布蘭光／新手最推薦立體光）',
+        desc: '光源從斜前方 45 度角照過來，讓臉部一面明亮、一面帶有柔和微暗的陰影（暗部臉頰會出現漂亮的倒三角形亮斑），完美刻畫立體感！',
+        tip: '🤖 <strong>卡麥拉小撇步：</strong>在戶外或咖啡廳窗邊拍人像時，45° 斜側光是成功率最高、最顯臉小的黃金角度！'
+      },
+      '90': {
+        name: '90° 正側光（陰陽臉／強烈戲劇張力）',
+        desc: '光源從正側面 90 度水平照射，將主體一分為二：一半極亮、另一半隱沒在深邃陰影中。明暗反差極大，非常適合表現硬派街拍或故事張力。',
+        tip: '🤖 <strong>卡麥拉小撇步：</strong>拍正側光時，建議對著「亮部臉頰」測光，讓暗部自然沉入黑色背景，照片會超有電影海報感！'
+      },
+      back: {
+        name: '逆光（輪廓光／日系唯美髮絲光）',
+        desc: '太陽或光源在主體正後方！背景極亮，光線會在人物的頭髮與肩膀邊緣勾勒出一圈金色的發光輪廓，是日系清透人像的最愛！',
+        tip: '🤖 <strong>卡麥拉特別叮嚀：</strong>日系逆光超美！但記得把<strong>曝光補償 +1 EV</strong> 或對臉部測光，不然臉會變黑炭喔！搭配 <strong>Black Mist 黑柔焦鏡</strong> 更夢幻！'
+      },
+      top: {
+        name: '頂光（正午陽光）',
+        desc: '正中午太陽高掛頭頂，光線垂直往下照，導致頭頂發亮，但眼窩、鼻子下與脖子產生濃重的黑影（俗稱骷髏光／黑眼圈光）。',
+        tip: '🤖 <strong>卡麥拉小撇步：</strong>中午 11 點到下午 2 點拍照，記得把模特兒帶到樹蔭、屋簷下，就能避開可怕的眼窩黑影囉！'
+      },
+      bottom: {
+        name: '底光（恐怖光／特殊舞台光）',
+        desc: '光源由下往上照，完全違反日常太陽的自然陰影方向，會在眼睛上方與鼻孔產生詭異陰影，常用於萬聖節氛圍、營火晚會或特殊劇場效果。',
+        tip: '🤖 <strong>卡麥拉小撇步：</strong>晚上在街頭想借用地面招牌光拍照時，記得讓模特兒稍微低頭看向光源，就能把恐怖底光變成唯美眼神光！'
+      }
+    };
+
+    function selectLightPos(pos) {
+      ['front', '45', '90', 'back', 'top', 'bottom'].forEach(p => {
+        document.getElementById(`shade-${p}`).classList.add('hidden');
+        const btn = document.getElementById(`lbtn-${p}`);
+        btn.className = p === pos
+          ? 'light-btn py-2 px-2 rounded-xl text-xs font-bold bg-forest text-cream shadow-sm transition'
+          : 'light-btn py-2 px-2 rounded-xl text-xs font-bold bg-cream text-charcoal border border-sage/30 hover:border-forest transition';
+      });
+
+      document.getElementById(`shade-${pos}`).classList.remove('hidden');
+      document.getElementById('subject-rim-light').setAttribute('opacity', pos === 'back' ? '1' : '0');
+      document.getElementById('outdoor-backlight-halo').setAttribute('opacity', pos === 'back' ? '0.65' : '0.15');
+
+      const info = LIGHT_POS_INFO[pos];
+      document.getElementById('light-current-badge').textContent = `目前光位：${info.name.split('（')[0]}`;
+      document.getElementById('light-title').textContent = info.name;
+      document.getElementById('light-desc').textContent = info.desc;
+      document.getElementById('light-bot-tip').innerHTML = info.tip;
+    }
+
+    function setLightingEnv(env) {
+      const outBtn = document.getElementById('env-outdoor-btn');
+      const inBtn = document.getElementById('env-indoor-btn');
+      const bgOut = document.getElementById('light-bg-outdoor');
+      const bgIn = document.getElementById('light-bg-indoor');
+      const title = document.getElementById('env-title');
+      const list = document.getElementById('env-list');
+
+      if (env === 'outdoor') {
+        outBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition';
+        inBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition';
+        bgOut.classList.remove('hidden');
+        bgIn.classList.add('hidden');
+        title.textContent = '☀️ 室外拍攝三大黃金關鍵（Outdoor）';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">01.</span><span><strong>鎖定黃金時刻（Golden Hour）：</strong>日出後與日落前 1 小時，陽光角度低、色溫金黃溫暖，怎麼拍都像電影劇照。</span></li>
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">02.</span><span><strong>陰天是最好的天然柔光罩：</strong>雲層會把刺眼的太陽散射成均勻漫射光，皮膚質感最乾淨細膩。</span></li>
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">03.</span><span><strong>避開正午頂光：</strong>中午 12 點太陽在正頭頂，容易拍出濃重黑眼圈，建議找樹蔭或走廊下拍攝。</span></li>
+        `;
+      } else {
+        inBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-forest text-cream shadow-sm transition';
+        outBtn.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-charcoal hover:text-forest transition';
+        bgIn.classList.remove('hidden');
+        bgOut.classList.add('hidden');
+        title.textContent = '☕ 室內咖啡廳拍攝三大關鍵（Indoor）';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">01.</span><span><strong>進光量大幅減少：</strong>室內比戶外暗非常多！記得把光圈開大（如 <code class="font-mono font-bold">f/1.8 ~ f/2.8</code>）或適度調高 ISO 感光度。</span></li>
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">02.</span><span><strong>窗光距離衰減快：</strong>坐在窗邊光線最柔美立體！越往店內走光線衰減越快，容易變成頂光黃臉婆。</span></li>
+          <li class="flex items-start gap-2"><span class="text-amber font-bold">03.</span><span><strong>注意室內暖黃色溫：</strong>咖啡廳黃燈容易讓食物與膚色偏橘黃，可將色溫微調至 <code class="font-mono font-bold">4200K ~ 4800K</code> 還原乾淨白皙感。</span></li>
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. 模組四：四大實戰情境配方 一鍵跨模組智慧連動 (含場景與晝夜切換)
+    // -------------------------------------------------------------------------
+    function applyScenarioPreset(type) {
+      // 清空現有濾鏡
+      Object.keys(activeFilters).forEach(k => {
+        if (activeFilters[k]) toggleFilter(k);
+      });
+
+      // 切換為 Auto 補償模式，讓新手直接看到完美曝光下的配方效果
+      setExposureMode('AUTO');
+
+      if (type === 'portrait') {
+        setScene('nature');
+        setTimeOfDay('day');
+        document.getElementById('slider-aperture').value = 1; // f/1.8
+        document.getElementById('slider-shutter').value = 3;  // 1/500s
+        document.getElementById('slider-focal').value = 85;
+        document.getElementById('slider-wb').value = 5200;
+        document.getElementById('toggle-tripod').checked = false;
+        selectHudParam('aperture');
+        toggleFilter('mist');
+      } else if (type === 'landscape') {
+        setScene('nature');
+        setTimeOfDay('day');
+        document.getElementById('slider-aperture').value = 5; // f/8
+        document.getElementById('slider-shutter').value = 8;  // 1/2s
+        document.getElementById('slider-focal').value = 24;
+        document.getElementById('slider-wb').value = 5500;
+        document.getElementById('toggle-tripod').checked = true;
+        selectHudParam('shutter');
+        toggleFilter('cpl');
+        toggleFilter('nd');
+      } else if (type === 'street') {
+        setScene('train');
+        setTimeOfDay('day');
+        document.getElementById('slider-aperture').value = 3; // f/4
+        document.getElementById('slider-shutter').value = 2;  // 1/1000s
+        document.getElementById('slider-focal').value = 35;
+        document.getElementById('slider-wb').value = 4800;
+        document.getElementById('toggle-tripod').checked = false;
+        selectHudParam('shutter');
+        toggleFilter('mist');
+      } else if (type === 'night') {
+        setScene('traffic');
+        setTimeOfDay('night');
+        document.getElementById('slider-aperture').value = 5; // f/8
+        document.getElementById('slider-shutter').value = 9;  // 2s
+        document.getElementById('slider-focal').value = 24;
+        document.getElementById('slider-wb').value = 3800;
+        document.getElementById('toggle-tripod').checked = true;
+        selectHudParam('shutter');
+        toggleFilter('star');
+      }
+
+      triggerBotFlash();
+      updateLab('preset');
+      document.getElementById('module-1').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 呼叫小機器人小抄 Modal
+    function toggleCheatSheet() {
+      const modal = document.getElementById('cheatsheet-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    // 初始化全站渲染
+    window.addEventListener('DOMContentLoaded', () => {
+      selectHudParam('aperture');
+      updateLab('init');
+      selectComp(0);
+      selectLightPos('45');
+    });
+  </script>
+</body>
+</html>
